@@ -1,0 +1,2077 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>知識尖塔</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* 版面概念：教室黑板。深綠板面＋粉筆線條，卡牌是白色單字卡，題目是紅筆批改的考卷。 */
+:root {
+  color-scheme: dark;
+  --board: #1d332e; --board-hi: #26443d; --board-lo: #14251f;
+  --chalk: #f4f1e6; --chalk-2: #c7d1c8; --chalk-3: #8ea69b;
+  --yellow: #f3d65f; --pink: #f08ba0; --sky: #7fc3f2; --mint: #92dba0; --violet: #b9a2f4; --orange: #f4a35e;
+  --wood: #7a4f2d; --wood-hi: #a0703f;
+  --paper: #fbf8ee; --ink: #25302c; --ink-2: #5a6862; --rule: #cfe0d6; --red-pen: #d6453d;
+  --c-warrior: #f0806f; --c-mage: #7fb4ff; --c-archer: #8fd695; --c-rogue: #b9a2f4;
+  --t-attack: #e9806e; --t-skill: #6fa8dc; --t-power: #e7c14f;
+  --good: #8fe0a0; --bad: #ff8f84;
+  --f-display: "LXGW WenKai TC", "Kaiti TC", "BiauKai", "DFKai-SB", "KaiTi", serif;
+  --f-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--board); color: var(--chalk); font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+  padding-block: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--f-display); margin: 0; font-weight: 700; text-wrap: balance; }
+p { margin: 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+#app {
+  height: 100%; position: relative; max-width: 1280px; margin-inline: auto;
+  border: 9px solid var(--wood); border-radius: 12px; overflow: hidden;
+  box-shadow: inset 0 0 0 2px var(--wood-hi), inset 0 0 60px rgba(0, 0, 0, .35), 0 0 0 2px rgba(0, 0, 0, .35);
+  background:
+    radial-gradient(900px 500px at 15% 12%, rgba(255, 255, 255, .05), transparent 60%),
+    radial-gradient(700px 400px at 90% 85%, rgba(255, 255, 255, .04), transparent 60%),
+    linear-gradient(180deg, var(--board-hi), var(--board) 40%, var(--board-lo));
+}
+.screen { height: 100%; overflow-y: auto; overflow-x: hidden; padding: 22px clamp(14px, 3vw, 36px) 30px; display: flex; flex-direction: column; }
+
+/* ---------- 按鈕（粉筆框） ---------- */
+.btn {
+  border: 2.5px solid var(--chalk); background: transparent; border-radius: 255px 14px 225px 14px / 14px 225px 14px 255px;
+  padding: 9px 22px; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; letter-spacing: .06em; color: var(--chalk);
+  transition: transform .12s, background .15s; min-height: 44px;
+}
+.btn:hover { background: rgba(255, 255, 255, .09); transform: translateY(-2px) rotate(-.6deg); }
+.btn:active { transform: translateY(0); }
+.btn.primary { border-color: var(--yellow); color: var(--yellow); background: rgba(243, 214, 95, .1); font-size: 1.55rem; padding: 14px 44px; }
+.btn.primary:hover { background: rgba(243, 214, 95, .2); }
+.btn.small { font-size: .95rem; padding: 5px 14px; min-height: 36px; border-width: 2px; }
+.btn.ghost { border-color: var(--chalk-3); color: var(--chalk-2); }
+.btn.danger { border-color: var(--bad); color: var(--bad); }
+.btn[disabled] { opacity: .4; pointer-events: none; }
+.link { background: none; border: 0; color: var(--sky); text-decoration: underline; text-underline-offset: 3px; padding: 4px; }
+
+/* ---------- 首頁 ---------- */
+.title-screen { align-items: center; justify-content: center; text-align: center; gap: 0; }
+.title-screen .tower { width: clamp(84px, 14vh, 130px); color: var(--chalk-2); opacity: .9; margin-bottom: 6px; }
+.title-screen h1 { font-size: clamp(2.6rem, 8vw, 4.6rem); letter-spacing: .14em; padding-left: .14em; text-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+.title-screen .sub { font-family: var(--f-display); color: var(--chalk-2); font-size: clamp(1rem, 2.4vw, 1.3rem); margin: 6px 0 28px; }
+.title-screen .stack { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.title-screen .bankline { margin-top: 26px; color: var(--chalk-3); font-size: .9rem; }
+.underline-chalk { display: block; width: min(280px, 60%); height: 8px; margin: 8px auto 0; color: var(--yellow); }
+
+/* ---------- 共用頁首 ---------- */
+.topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+.topbar h2 { font-size: 1.7rem; letter-spacing: .08em; }
+.topbar .spacer { flex: 1; }
+
+/* ---------- 設定 ---------- */
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
+.panel { border: 2px dashed var(--chalk-3); border-radius: 14px; padding: 16px 18px; min-width: 0; background: rgba(0, 0, 0, .12); }
+.panel.full { grid-column: 1 / -1; }
+.panel h3 { font-size: 1.25rem; margin-bottom: 10px; color: var(--yellow); letter-spacing: .05em; }
+.panel .note { color: var(--chalk-2); font-size: .92rem; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 2px solid var(--chalk-3); border-radius: 999px; padding: 3px 12px; font-size: .9rem; background: transparent; color: var(--chalk-2); min-height: 32px; }
+.chip[aria-pressed="true"] { border-color: var(--mint); color: var(--mint); background: rgba(146, 219, 160, .12); }
+.seg { display: inline-flex; border: 2px solid var(--chalk-3); border-radius: 12px; overflow: hidden; }
+.seg button { background: none; border: 0; padding: 7px 16px; color: var(--chalk-2); min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--yellow); color: #2a2a18; font-weight: 700; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+textarea, input[type="text"] {
+  width: 100%; background: rgba(0, 0, 0, .28); color: var(--chalk); border: 2px solid var(--chalk-3); border-radius: 10px; padding: 10px 12px; font: inherit;
+}
+textarea { min-height: 150px; resize: vertical; font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: .88rem; line-height: 1.5; }
+textarea::placeholder, input::placeholder { color: var(--chalk-3); }
+input[type="file"] { color: var(--chalk-2); max-width: 100%; }
+.msg { margin-top: 10px; padding: 8px 12px; border-radius: 10px; font-size: .92rem; }
+.msg.ok { background: rgba(146, 219, 160, .14); color: var(--good); }
+.msg.err { background: rgba(255, 143, 132, .13); color: var(--bad); }
+.msg ul { margin: 6px 0 0; padding-left: 18px; max-height: 120px; overflow: auto; }
+.tablewrap { overflow-x: auto; }
+table.cols { border-collapse: collapse; font-size: .9rem; min-width: 460px; width: 100%; }
+table.cols th, table.cols td { border-bottom: 1px solid rgba(255, 255, 255, .15); padding: 5px 8px; text-align: left; vertical-align: top; }
+table.cols th { color: var(--yellow); font-weight: 500; white-space: nowrap; }
+pre.sample { background: rgba(0, 0, 0, .3); border-radius: 10px; padding: 10px 12px; overflow-x: auto; font-size: .85rem; margin: 8px 0; white-space: pre; font-family: ui-monospace, Menlo, monospace; }
+details summary { cursor: pointer; color: var(--sky); padding: 4px 0; }
+.qlist { list-style: none; margin: 8px 0 0; padding: 0; max-height: 320px; overflow-y: auto; border: 1px solid rgba(255, 255, 255, .15); border-radius: 10px; }
+.qlist li { display: flex; gap: 10px; align-items: center; padding: 7px 10px; border-bottom: 1px solid rgba(255, 255, 255, .1); font-size: .9rem; }
+.qlist li:last-child { border-bottom: 0; }
+.qlist .qt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.qlist .tag { color: var(--chalk-3); font-size: .78rem; white-space: nowrap; }
+.qlist button { background: none; border: 0; color: var(--bad); padding: 4px 8px; }
+.tog { display: flex; align-items: center; gap: 10px; min-height: 36px; }
+.tog input { width: 20px; height: 20px; accent-color: var(--yellow); }
+
+/* ---------- 名字 / 職業 ---------- */
+.center-col { max-width: 520px; margin: auto; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.center-col h2 { font-size: 2rem; letter-spacing: .1em; }
+.name-input { font-family: var(--f-display); font-size: 1.8rem; text-align: center; max-width: 360px; border: 0; border-bottom: 3px dashed var(--chalk-2); border-radius: 0; background: transparent; padding: 8px; }
+.classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-block: 4px 20px; }
+.cls { text-align: left; border: 2.5px solid var(--chalk-3); border-radius: 16px; padding: 16px; background: rgba(0, 0, 0, .15); display: flex; flex-direction: column; gap: 10px; min-width: 0; transition: transform .15s, border-color .15s; }
+.cls:hover { transform: translateY(-3px); }
+.cls[aria-pressed="true"] { border-color: var(--cc); background: rgba(255, 255, 255, .07); box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc) 35%, transparent); }
+.cls .head { display: flex; align-items: center; gap: 12px; }
+.cls .ava { width: 58px; height: 58px; border-radius: 50%; border: 2.5px solid var(--cc); color: var(--cc); display: grid; place-items: center; flex: none; background: rgba(0, 0, 0, .2); }
+.cls h3 { font-size: 1.6rem; color: var(--cc); letter-spacing: .1em; }
+.cls .tag { font-family: var(--f-display); color: var(--chalk-2); font-size: .95rem; }
+.cls .hp { font-weight: 700; }
+.cls .blurb { font-size: .9rem; color: var(--chalk-2); }
+.cls .traits { font-size: .82rem; color: var(--chalk-3); }
+.rates { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: .82rem; align-items: center; }
+.dots { display: inline-flex; gap: 4px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--chalk-3); }
+.dots i.on { background: var(--cc); border-color: var(--cc); }
+.cls .starter { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: .78rem; color: var(--chalk-3); }
+
+/* ---------- 卡牌 ---------- */
+.card {
+  --tc: var(--t-attack);
+  position: relative; flex: none; width: 124px; height: 178px; border: 2.5px solid var(--ink); border-radius: 10px;
+  background: var(--paper); color: var(--ink); padding: 0; display: flex; flex-direction: column; text-align: center; overflow: visible;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .35), 0 6px 14px rgba(0, 0, 0, .3);
+  transition: transform .15s ease, box-shadow .15s, opacity .15s, filter .15s;
+  transform: translateY(var(--dy, 0px)) rotate(var(--rot, 0deg));
+  font-family: var(--f-body);
+}
+.card.t-skill { --tc: var(--t-skill); }
+.card.t-power { --tc: var(--t-power); }
+.card.r-uncommon { border-color: #3a6fb8; }
+.card.r-rare { border-color: #bb8a1b; box-shadow: 0 3px 0 rgba(0, 0, 0, .35), 0 0 0 2px rgba(231, 193, 79, .55), 0 6px 14px rgba(0, 0, 0, .3); }
+.card .cname { background: var(--tc); border-radius: 6px 6px 0 0; padding: 4px 6px 4px 28px; font-family: var(--f-display); font-weight: 700; font-size: .98rem; line-height: 1.2; min-height: 30px; display: flex; align-items: center; justify-content: center; color: #1c1c1c; text-wrap: balance; }
+.card .cost { position: absolute; left: -9px; top: -9px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: var(--yellow); border: 2px solid var(--paper); font-family: var(--f-display); font-weight: 700; font-size: 1.05rem; display: grid; place-items: center; box-shadow: 0 2px 0 rgba(0, 0, 0, .3); }
+.card .art { height: 52px; margin: 6px 12px 0; border-radius: 8px; background: color-mix(in srgb, var(--tc) 22%, var(--paper)); display: grid; place-items: center; color: var(--ink); border: 1.5px dashed color-mix(in srgb, var(--tc) 70%, var(--ink)); }
+.card .ctype { font-size: .68rem; letter-spacing: .2em; color: var(--ink-2); margin-top: 4px; padding-left: .2em; }
+.card .cdesc { flex: 1; padding: 2px 8px 8px; font-size: .78rem; line-height: 1.35; display: flex; align-items: center; justify-content: center; font-weight: 500; }
+.card .rar { position: absolute; right: 6px; bottom: 5px; width: 8px; height: 8px; transform: rotate(45deg); background: #a5aeaa; }
+.card.r-uncommon .rar { background: #3a6fb8; }
+.card.r-rare .rar { background: #e0a820; box-shadow: 0 0 4px #e0a820; }
+.card.r-basic .rar, .card.r-token .rar { display: none; }
+.card.pwr::after { content: "能力"; position: absolute; top: 36px; right: -7px; background: var(--ink); color: var(--yellow); font-size: .6rem; padding: 0 5px; border-radius: 3px; letter-spacing: .08em; }
+.card.big { width: 168px; height: 240px; }
+.card.big .cname { font-size: 1.15rem; min-height: 38px; padding-left: 34px; }
+.card.big .art { height: 74px; }
+.card.big .cdesc { font-size: .95rem; padding: 4px 12px 12px; }
+.card.mini { width: 92px; height: 132px; }
+.card.mini .cname { font-size: .78rem; min-height: 24px; padding-left: 20px; }
+.card.mini .cost { width: 24px; height: 24px; font-size: .85rem; left: -7px; top: -7px; }
+.card.mini .art { height: 34px; margin: 4px 8px 0; }
+.card.mini .art svg { width: 22px; height: 22px; }
+.card.mini .cdesc { font-size: .66rem; padding: 2px 6px 6px; }
+.card.mini .ctype { display: none; }
+button.card:hover:not([disabled]) { --dy: -12px; z-index: 5; }
+.card.sel { --dy: -30px; z-index: 8; box-shadow: 0 0 0 3px var(--yellow), 0 12px 22px rgba(0, 0, 0, .45); }
+.card.dis { filter: saturate(.35) brightness(.78); }
+.card.chosen { box-shadow: 0 0 0 4px var(--mint), 0 8px 16px rgba(0, 0, 0, .4); --dy: -10px; }
+.card.reward { cursor: pointer; }
+.card.reward:hover { --dy: -10px; }
+
+/* ---------- 戰鬥 ---------- */
+.battle { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 10px clamp(10px, 2vw, 22px) 10px; gap: 6px; }
+.hud { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.hud .who { font-family: var(--f-display); font-size: 1.1rem; }
+.hud .grow { flex: 1; }
+.route { display: flex; align-items: center; gap: 5px; }
+.route i { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--chalk-3); display: block; }
+.route i.done { background: var(--chalk-3); }
+.route i.now { border-color: var(--yellow); background: var(--yellow); box-shadow: 0 0 0 3px rgba(243, 214, 95, .3); }
+.route i.elite { border-radius: 3px; transform: rotate(45deg); }
+.route i.boss { width: 18px; height: 18px; border-color: var(--pink); }
+.route i.boss.done, .route i.boss.now { background: var(--pink); }
+.arena { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; min-height: 0; padding-block: 4px; }
+.pbox { width: 200px; flex: none; display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.pbox .ava { width: 78px; height: 78px; border-radius: 50%; border: 3px solid var(--cc); color: var(--cc); display: grid; place-items: center; background: rgba(0, 0, 0, .22); }
+.pbox .pname { font-family: var(--f-display); font-size: 1.1rem; }
+.bar { position: relative; height: 20px; border: 2px solid var(--chalk-2); border-radius: 12px; background: rgba(0, 0, 0, .35); overflow: hidden; width: 100%; }
+.bar i { position: absolute; inset: 0 auto 0 0; background: var(--pink); transition: width .3s; border-radius: 10px; }
+.bar.foe-bar i { background: #e0786b; }
+.bar b { position: absolute; inset: 0; display: grid; place-items: center; font-size: .75rem; font-weight: 700; text-shadow: 0 1px 2px #000; }
+.stat { display: inline-flex; align-items: center; gap: 4px; padding: 1px 9px; border-radius: 999px; border: 2px solid var(--chalk-3); font-size: .8rem; background: rgba(0, 0, 0, .2); white-space: nowrap; }
+.stat.blk { border-color: var(--sky); color: var(--sky); }
+.stat.bad { border-color: var(--bad); color: var(--bad); }
+.stat.good { border-color: var(--mint); color: var(--mint); }
+.stat.mana { border-color: var(--violet); color: var(--violet); }
+.stat.warn { border-color: var(--orange); color: var(--orange); }
+.stat.streak { border-color: var(--yellow); color: var(--yellow); }
+.statline { display: flex; flex-wrap: wrap; gap: 5px; }
+.foes { display: flex; gap: clamp(8px, 2vw, 26px); justify-content: center; align-items: flex-end; flex: 1; min-width: 0; flex-wrap: wrap; }
+.foe { width: 150px; display: flex; flex-direction: column; align-items: center; gap: 5px; position: relative; padding: 4px; border-radius: 14px; border: 2px solid transparent; background: none; transition: opacity .4s, filter .4s; }
+.foe .sprite { font-size: 68px; line-height: 1; filter: drop-shadow(0 6px 0 rgba(0, 0, 0, .28)); transition: transform .2s; }
+.foe.elite .sprite { font-size: 84px; }
+.foe.boss .sprite { font-size: 108px; }
+.foe.boss, .foe.elite { width: 190px; }
+.foe .fname { font-family: var(--f-display); font-weight: 700; }
+.foe.dead { opacity: .14; filter: grayscale(1); pointer-events: none; }
+.foe.targetable { cursor: pointer; border-color: var(--yellow); border-style: dashed; background: rgba(243, 214, 95, .08); animation: pulse 1s infinite; }
+.foe.hit .sprite { animation: shake .35s; }
+.foe.acting .sprite { animation: lunge .35s; }
+.intent { display: flex; align-items: center; gap: 6px; padding: 2px 10px; border: 2px solid var(--orange); color: var(--orange); border-radius: 999px; font-weight: 700; background: rgba(0, 0, 0, .3); font-size: .9rem; min-height: 28px; }
+.intent.sp { border-color: var(--sky); color: var(--sky); }
+.pbox.hit .ava { animation: shake .35s; }
+.float { position: fixed; z-index: 90; pointer-events: none; font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; text-shadow: 0 2px 0 #000, 0 0 8px rgba(0, 0, 0, .6); animation: floatup .95s ease-out forwards; transform: translateX(-50%); }
+.float.dmg { color: #ffd2cc; } .float.pdmg { color: var(--bad); } .float.heal { color: var(--good); } .float.block { color: var(--sky); }
+@keyframes floatup { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -64px; } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+@keyframes lunge { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(-26px) scale(1.08); } }
+@keyframes pulse { 50% { background: rgba(243, 214, 95, .18); } }
+.tray { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: end; padding-top: 8px; position: relative; }
+.tray .side { display: flex; flex-direction: column; align-items: center; gap: 8px; padding-bottom: 6px; }
+.orb { width: 74px; height: 74px; border-radius: 50%; border: 3px solid var(--yellow); color: var(--yellow); display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: 1.7rem; background: rgba(243, 214, 95, .1); line-height: 1; text-align: center; }
+.orb small { display: block; font-size: .62rem; letter-spacing: .1em; font-family: var(--f-body); font-weight: 400; margin-top: 2px; }
+.pilebtn { background: none; border: 2px solid var(--chalk-3); border-radius: 10px; color: var(--chalk-2); padding: 4px 10px; font-size: .82rem; min-height: 36px; }
+.pilebtn:hover { background: rgba(255, 255, 255, .08); }
+.hand { display: flex; gap: 6px; justify-content: center; align-items: flex-end; padding: 38px 14px 8px; overflow-x: auto; overflow-y: hidden; min-height: 226px; scrollbar-width: thin; }
+.hand .card { margin-inline: 0; }
+.hand.empty::before { content: "手牌用完了，按「結束回合」"; color: var(--chalk-3); align-self: center; font-family: var(--f-display); }
+.hint { position: absolute; left: 50%; top: -12px; transform: translateX(-50%); background: var(--yellow); color: #2a2a18; padding: 4px 14px; border-radius: 999px; font-weight: 700; font-size: .88rem; z-index: 20; white-space: nowrap; pointer-events: none; }
+.endturn { font-size: 1.05rem; padding: 8px 18px; }
+
+/* ---------- 彈窗 ---------- */
+.modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: rgba(6, 14, 12, .78); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
+.modal[hidden] { display: none; }
+.sheet { background: var(--board); border: 3px solid var(--chalk-3); border-radius: 16px; padding: 18px 20px; width: min(760px, 100%); max-height: 100%; overflow-y: auto; }
+.sheet h3 { font-size: 1.4rem; margin-bottom: 12px; color: var(--yellow); }
+.cardgrid { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; padding: 14px 6px; }
+
+.quiz {
+  width: min(680px, 100%); background: var(--paper); color: var(--ink); border-radius: 6px; padding: 20px 22px 20px 58px; position: relative;
+  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+  box-shadow: 0 0 0 5px var(--wood), 0 20px 50px rgba(0, 0, 0, .6);
+}
+.quiz::before { content: ""; position: absolute; left: 40px; top: 0; bottom: 0; width: 2px; background: var(--red-pen); opacity: .7; }
+.quiz .meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: .85rem; color: var(--ink-2); margin-bottom: 10px; }
+.quiz .meta .tagc { background: var(--ink); color: var(--yellow); border-radius: 6px; padding: 1px 9px; font-weight: 700; }
+.quiz .meta .sub { border: 1.5px solid var(--ink-2); border-radius: 6px; padding: 0 8px; }
+.quiz .q { font-size: clamp(1.2rem, 3.4vw, 1.55rem); font-weight: 700; line-height: 1.5; margin: 6px 0 16px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; align-items: center; gap: 12px; text-align: left; background: #fff; border: 2.5px solid var(--ink); border-radius: 12px; padding: 10px 14px; color: var(--ink); font-size: 1.12rem; font-weight: 500; min-height: 54px; box-shadow: 0 3px 0 var(--ink); transition: transform .1s; overflow-wrap: anywhere; }
+.opt:hover:not([disabled]) { transform: translateY(-2px); background: #fffbe6; }
+.opt .ltr { flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: var(--paper); display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; }
+.opt.right { background: #d8f5df; border-color: #2c8a4a; box-shadow: 0 3px 0 #2c8a4a; }
+.opt.right .ltr { background: #2c8a4a; }
+.opt.wrong { background: #fde0dc; border-color: var(--red-pen); box-shadow: 0 3px 0 var(--red-pen); }
+.opt.wrong .ltr { background: var(--red-pen); }
+.opt[disabled] { cursor: default; }
+.fb { margin-top: 14px; font-family: var(--f-display); font-size: 1.25rem; font-weight: 700; }
+.fb.ok { color: #1f7a3d; } .fb.no { color: var(--red-pen); }
+.fb small { display: block; font-family: var(--f-body); font-weight: 400; font-size: .92rem; color: var(--ink-2); margin-top: 2px; }
+.quiz .go { margin-top: 12px; display: flex; justify-content: flex-end; }
+.quiz .btn { color: var(--ink); border-color: var(--ink); }
+.quiz .btn:hover { background: rgba(0, 0, 0, .07); }
+
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--chalk); color: var(--ink); padding: 8px 18px; border-radius: 999px; z-index: 100; font-weight: 700; box-shadow: 0 6px 18px rgba(0, 0, 0, .4); }
+.toast[hidden] { display: none; }
+
+/* ---------- 獎勵 / 結算 ---------- */
+.reward-wrap { max-width: 760px; margin: auto; width: 100%; text-align: center; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.reward-wrap h2 { font-size: 2.2rem; letter-spacing: .1em; color: var(--yellow); }
+.reward-wrap .cardgrid { gap: 26px; }
+.endstats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; width: 100%; }
+.endstats div { border: 2px dashed var(--chalk-3); border-radius: 12px; padding: 10px; }
+.endstats b { display: block; font-family: var(--f-display); font-size: 1.9rem; color: var(--yellow); line-height: 1.2; }
+.endstats span { font-size: .85rem; color: var(--chalk-2); }
+.review { width: 100%; text-align: left; }
+.review h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--pink); }
+.review ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.review li { border: 1.5px solid rgba(255, 255, 255, .2); border-radius: 10px; padding: 8px 12px; font-size: .92rem; overflow-wrap: anywhere; }
+.review li b { color: var(--mint); }
+.review li s { color: var(--bad); }
+
+/* ---------- 手機 ---------- */
+@media (max-width: 860px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  #app { border-width: 6px; }
+}
+@media (max-width: 720px) {
+  .arena { flex-direction: column-reverse; align-items: stretch; gap: 4px; }
+  .pbox { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .pbox .ava { width: 44px; height: 44px; border-width: 2px; }
+  .pbox .ava svg { width: 24px; height: 24px; }
+  .pbox .bar { width: 130px; }
+  .pbox .pname { font-size: 1rem; }
+  .foe { width: 108px; }
+  .foe .sprite { font-size: 46px; }
+  .foe.elite .sprite { font-size: 58px; } .foe.boss .sprite { font-size: 70px; }
+  .foe.boss, .foe.elite { width: 140px; }
+  .tray { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "hand hand" "left right"; gap: 4px; }
+  .tray .hand { grid-area: hand; padding-top: 34px; min-height: 206px; justify-content: flex-start; }
+  .tray .left { grid-area: left; display: flex; gap: 8px; align-items: center; }
+  .tray .side { grid-area: right; flex-direction: row; padding: 0; }
+  .orb { width: 56px; height: 56px; font-size: 1.35rem; }
+  .card { width: 108px; height: 160px; }
+  .card .cdesc { font-size: .72rem; padding-inline: 6px; }
+  .quiz { padding: 16px 14px 16px 44px; }
+  .quiz::before { left: 30px; }
+  .title-screen .btn.primary { padding: 12px 34px; font-size: 1.4rem; }
+}
+@media (max-height: 700px) and (min-width: 721px) {
+  .hand { min-height: 200px; padding-top: 30px; }
+  .card { width: 112px; height: 160px; }
+  .foe .sprite { font-size: 52px; } .foe.elite .sprite { font-size: 64px; } .foe.boss .sprite { font-size: 80px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+.foe .sprite { position: relative; display: inline-block; }
+.markbadge { position: absolute; right: -14px; top: -6px; display: inline-flex; align-items: center; gap: 2px; background: var(--orange); color: #2a1a05; border-radius: 999px; padding: 2px 8px 2px 5px; font-size: 1rem; font-family: var(--f-body); line-height: 1.2; box-shadow: 0 2px 0 rgba(0, 0, 0, .35); animation: pop .3s; }
+.markbadge b { font-weight: 700; }
+@keyframes pop { from { transform: scale(.4); } to { transform: scale(1); } }
+
+.help { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.help section { border: 2px dashed var(--chalk-3); border-radius: 14px; padding: 14px 18px; background: rgba(0, 0, 0, .12); min-width: 0; }
+.help section:first-child, .help section:nth-child(2) { grid-column: 1 / -1; }
+.help h3 { font-size: 1.2rem; color: var(--yellow); margin-bottom: 6px; letter-spacing: .05em; }
+.help ul, .help ol { margin: 4px 0 0; padding-left: 22px; display: grid; gap: 4px; }
+.help p { color: var(--chalk-2); }
+.help .note { margin-top: 6px; font-size: .9rem; color: var(--chalk-3); }
+.help svg { vertical-align: -3px; }
+.sheet .help { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 860px) { .help { grid-template-columns: minmax(0, 1fr); } }
+
+.title-screen .credit { position: absolute; left: 18px; bottom: 12px; font-family: var(--f-display); font-size: 1.05rem; color: var(--chalk-2); letter-spacing: .12em; }
+
+.btn.rank { border-color: var(--pink); color: var(--pink); background: rgba(240, 139, 160, .08); font-size: 1.3rem; padding: 10px 34px; }
+.btn.rank:hover { background: rgba(240, 139, 160, .18); }
+.title-screen .stack .row { margin-top: 4px; }
+.rbar { width: 150px; height: 12px; border: 2px solid var(--chalk-3); border-radius: 8px; overflow: hidden; position: relative; }
+.rbar i { position: absolute; inset: 0 auto 0 0; background: var(--yellow); }
+.healopt { display: flex; flex-direction: column; align-items: center; gap: 2px; border: 2.5px solid var(--mint); color: var(--mint); background: rgba(146, 219, 160, .08); border-radius: 14px; padding: 12px 40px; font-family: var(--f-display); font-size: 1.3rem; }
+.healopt span { font-family: var(--f-body); font-size: .92rem; color: var(--chalk-2); }
+.healopt:hover:not([disabled]) { background: rgba(146, 219, 160, .18); }
+.healopt[disabled] { opacity: .45; cursor: default; }
+table.lb { border-collapse: collapse; width: 100%; min-width: 440px; }
+table.lb th, table.lb td { padding: 8px 10px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, .13); white-space: nowrap; }
+table.lb th { color: var(--yellow); font-weight: 500; font-size: .88rem; }
+table.lb td.rk { font-family: var(--f-display); font-size: 1.2rem; width: 3.2em; }
+table.lb tr:nth-child(1) td.rk { color: var(--yellow); } table.lb tr:nth-child(2) td.rk { color: var(--chalk); } table.lb tr:nth-child(3) td.rk { color: var(--orange); }
+table.lb tr.me td { background: rgba(243, 214, 95, .12); }
+table.lb .cl { font-size: .82rem; margin-left: 4px; }
+table.lb .full { color: var(--yellow); font-weight: 700; }
+
+</style>
+<div id="app"></div>
+<div id="m-quiz" class="modal" hidden></div>
+<div id="m-sheet" class="modal" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<script>
+const CARDS={"warrior_01":{"id":"warrior_01","cls":"warrior","name":"重斬","type":"attack","cost":1,"rarity":"common","desc":"造成 8 傷害，失去 1 HP","ops":[{"op":"dmg","n":8,"hits":1},{"op":"loseHp","n":1}]},"warrior_02":{"id":"warrior_02","cls":"warrior","name":"盾牌猛擊","type":"attack","cost":1,"rarity":"common","desc":"造成等同當前護甲的傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"block","k":1}}]},"warrior_03":{"id":"warrior_03","cls":"warrior","name":"旋風斬","type":"attack","cost":2,"rarity":"common","desc":"對全體造成 8 傷害","ops":[{"op":"dmg","n":8,"hits":1,"all":true}]},"warrior_04":{"id":"warrior_04","cls":"warrior","name":"破膽一擊","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害，施加 1 脆弱","ops":[{"op":"dmg","n":6,"hits":1},{"op":"status","s":"vuln","n":1}]},"warrior_05":{"id":"warrior_05","cls":"warrior","name":"雙刃連斬","type":"attack","cost":1,"rarity":"common","desc":"造成 4 傷害兩次","ops":[{"op":"dmg","n":4,"hits":2}]},"warrior_06":{"id":"warrior_06","cls":"warrior","name":"衝鋒","type":"attack","cost":0,"rarity":"common","desc":"造成 4 傷害，失去 1 HP","ops":[{"op":"dmg","n":4,"hits":1},{"op":"loseHp","n":1}]},"warrior_07":{"id":"warrior_07","cls":"warrior","name":"反手劈","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；若有護甲，額外 +4","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"hasBlock","t":"add","v":4}}]},"warrior_08":{"id":"warrior_08","cls":"warrior","name":"大地裂擊","type":"attack","cost":2,"rarity":"common","desc":"造成 14 傷害","ops":[{"op":"dmg","n":14,"hits":1}]},"warrior_09":{"id":"warrior_09","cls":"warrior","name":"橫掃","type":"attack","cost":1,"rarity":"common","desc":"對全體造成 5 傷害","ops":[{"op":"dmg","n":5,"hits":1,"all":true}]},"warrior_10":{"id":"warrior_10","cls":"warrior","name":"擲斧","type":"attack","cost":1,"rarity":"common","desc":"造成 7 傷害，施加 1 虛弱","ops":[{"op":"dmg","n":7,"hits":1},{"op":"status","s":"weak","n":1}]},"warrior_11":{"id":"warrior_11","cls":"warrior","name":"蠻力衝撞","type":"attack","cost":2,"rarity":"common","desc":"造成 10 傷害，獲得 6 護甲","ops":[{"op":"dmg","n":10,"hits":1},{"op":"block","n":6}]},"warrior_12":{"id":"warrior_12","cls":"warrior","name":"割裂","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；目標有脆弱則 +4","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"vuln","t":"add","v":4}}]},"warrior_13":{"id":"warrior_13","cls":"warrior","name":"怒吼斬","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，本回合力量 +1","ops":[{"op":"dmg","n":5,"hits":1},{"op":"tempStr","n":1}]},"warrior_14":{"id":"warrior_14","cls":"warrior","name":"連環劈","type":"attack","cost":2,"rarity":"common","desc":"造成 5 傷害三次","ops":[{"op":"dmg","n":5,"hits":3}]},"warrior_15":{"id":"warrior_15","cls":"warrior","name":"踐踏","type":"attack","cost":1,"rarity":"common","desc":"造成 9 傷害，失去 2 HP","ops":[{"op":"dmg","n":9,"hits":1},{"op":"loseHp","n":2}]},"warrior_16":{"id":"warrior_16","cls":"warrior","name":"利刃反擊","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害，獲得 2 護甲","ops":[{"op":"dmg","n":6,"hits":1},{"op":"block","n":2}]},"warrior_17":{"id":"warrior_17","cls":"warrior","name":"鐵壁","type":"skill","cost":2,"rarity":"common","desc":"獲得 13 護甲","ops":[{"op":"block","n":13}]},"warrior_18":{"id":"warrior_18","cls":"warrior","name":"舉盾","type":"skill","cost":1,"rarity":"common","desc":"獲得 6 護甲","ops":[{"op":"block","n":6}]},"warrior_19":{"id":"warrior_19","cls":"warrior","name":"戰吼","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，本回合力量 +2","ops":[{"op":"block","n":4},{"op":"tempStr","n":2}]},"warrior_20":{"id":"warrior_20","cls":"warrior","name":"堅守","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，抽 1 張牌","ops":[{"op":"block","n":5},{"op":"draw","n":1}]},"warrior_21":{"id":"warrior_21","cls":"warrior","name":"包紮","type":"skill","cost":1,"rarity":"common","desc":"回復 4 HP，獲得 3 護甲","ops":[{"op":"heal","n":4},{"op":"block","n":3}]},"warrior_22":{"id":"warrior_22","cls":"warrior","name":"嘲諷","type":"skill","cost":1,"rarity":"common","desc":"施加 1 虛弱，獲得 5 護甲","ops":[{"op":"status","s":"weak","n":1},{"op":"block","n":5}]},"warrior_23":{"id":"warrior_23","cls":"warrior","name":"蓄勢","type":"skill","cost":0,"rarity":"common","desc":"獲得 3 護甲","ops":[{"op":"block","n":3}]},"warrior_24":{"id":"warrior_24","cls":"warrior","name":"硬撐","type":"skill","cost":1,"rarity":"common","desc":"獲得 8 護甲，失去 2 HP","ops":[{"op":"block","n":8},{"op":"loseHp","n":2}]},"warrior_25":{"id":"warrior_25","cls":"warrior","name":"防禦姿態","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，下回合開始再獲得 4 護甲","ops":[{"op":"block","n":4},{"op":"nextTurn","k":"block","n":4}]},"warrior_26":{"id":"warrior_26","cls":"warrior","name":"怒意","type":"skill","cost":0,"rarity":"common","desc":"失去 2 HP，獲得 1 能量","ops":[{"op":"loseHp","n":2},{"op":"energy","n":1}]},"warrior_27":{"id":"warrior_27","cls":"warrior","name":"戰地急救","type":"skill","cost":1,"rarity":"common","desc":"移除自身所有負面狀態，獲得 5 護甲","ops":[{"op":"cleanse","n":99},{"op":"block","n":5}]},"warrior_28":{"id":"warrior_28","cls":"warrior","name":"鎖甲","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲；本回合下一張攻擊牌 +3 傷害","ops":[{"op":"block","n":5},{"op":"nextAtk","n":3}]},"warrior_29":{"id":"warrior_29","cls":"warrior","name":"重整旗鼓","type":"skill","cost":1,"rarity":"common","desc":"抽 2 張牌，失去 2 HP","ops":[{"op":"draw","n":2},{"op":"loseHp","n":2}]},"warrior_30":{"id":"warrior_30","cls":"warrior","name":"鼓舞","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，回復 2 HP","ops":[{"op":"block","n":4},{"op":"heal","n":2}]},"warrior_31":{"id":"warrior_31","cls":"warrior","name":"震懾","type":"skill","cost":1,"rarity":"common","desc":"施加 2 虛弱","ops":[{"op":"status","s":"weak","n":2}]},"warrior_32":{"id":"warrior_32","cls":"warrior","name":"弱點洞察","type":"skill","cost":1,"rarity":"common","desc":"施加 2 脆弱，失去 1 HP","ops":[{"op":"status","s":"vuln","n":2},{"op":"loseHp","n":1}]},"warrior_33":{"id":"warrior_33","cls":"warrior","name":"守衛","type":"skill","cost":2,"rarity":"common","desc":"獲得 9 護甲，抽 1 張牌","ops":[{"op":"block","n":9},{"op":"draw","n":1}]},"warrior_34":{"id":"warrior_34","cls":"warrior","name":"咆哮","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，全體敵人虛弱 1 層","ops":[{"op":"block","n":4},{"op":"status","s":"weak","n":1,"all":true}]},"warrior_35":{"id":"warrior_35","cls":"warrior","name":"負傷奮戰","type":"skill","cost":1,"rarity":"common","desc":"若 HP 低於 50%，獲得 10 護甲，否則獲得 5 護甲","ops":[{"op":"block","n":5,"cond":{"c":"hpLow","t":"set","v":10}}]},"warrior_36":{"id":"warrior_36","cls":"warrior","name":"狂戰斬","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 18 傷害，失去 3 HP","ops":[{"op":"dmg","n":18,"hits":1},{"op":"loseHp","n":3}]},"warrior_37":{"id":"warrior_37","cls":"warrior","name":"重盾衝撞","type":"attack","cost":2,"rarity":"uncommon","desc":"造成等同護甲 ×1.5（進位）的傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"block","k":1.5}}]},"warrior_38":{"id":"warrior_38","cls":"warrior","name":"血怒","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 8 傷害；若 HP 低於 50%，傷害翻倍","ops":[{"op":"dmg","n":8,"hits":1,"cond":{"c":"hpLow","t":"mul","v":2}}]},"warrior_39":{"id":"warrior_39","cls":"warrior","name":"大旋風","type":"attack","cost":-1,"rarity":"uncommon","desc":"對全體造成 X 次 5 傷害","ops":[{"op":"dmg","n":5,"hits":"X","all":true}]},"warrior_40":{"id":"warrior_40","cls":"warrior","name":"處決","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 12 傷害；目標有脆弱則改為 20","ops":[{"op":"dmg","n":12,"hits":1,"cond":{"c":"vuln","t":"set","v":20}}]},"warrior_41":{"id":"warrior_41","cls":"warrior","name":"雙重盾擊","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 6 傷害，獲得 4 護甲","ops":[{"op":"dmg","n":6,"hits":1},{"op":"block","n":4}]},"warrior_42":{"id":"warrior_42","cls":"warrior","name":"狂亂揮砍","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3}]},"warrior_43":{"id":"warrior_43","cls":"warrior","name":"震地","type":"attack","cost":2,"rarity":"uncommon","desc":"對全體造成 10 傷害，施加 1 脆弱","ops":[{"op":"dmg","n":10,"hits":1,"all":true},{"op":"status","s":"vuln","n":1,"all":true}]},"warrior_44":{"id":"warrior_44","cls":"warrior","name":"斷骨","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 10 傷害，失去 3 HP","ops":[{"op":"dmg","n":10,"hits":1},{"op":"loseHp","n":3}]},"warrior_45":{"id":"warrior_45","cls":"warrior","name":"烈士之擊","type":"attack","cost":3,"rarity":"uncommon","desc":"造成 30 傷害","ops":[{"op":"dmg","n":30,"hits":1}]},"warrior_46":{"id":"warrior_46","cls":"warrior","name":"連鎖衝擊","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 6 傷害，本回合每打出過一張攻擊牌 +2","ops":[{"op":"dmg","n":6,"hits":1,"per":{"c":"atkPlayed","v":2}}]},"warrior_47":{"id":"warrior_47","cls":"warrior","name":"傷痕報復","type":"attack","cost":1,"rarity":"uncommon","desc":"本回合失去過 HP 則造成 14 傷害，否則 6","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"lostHp","t":"set","v":14}}]},"warrior_48":{"id":"warrior_48","cls":"warrior","name":"鋼鐵壁壘","type":"skill","cost":2,"rarity":"uncommon","desc":"獲得 10 護甲，其中 5 保留到下回合","ops":[{"op":"block","n":10},{"op":"retain","n":5}]},"warrior_49":{"id":"warrior_49","cls":"warrior","name":"戰鼓","type":"skill","cost":1,"rarity":"uncommon","desc":"本回合力量 +3，抽 1 張牌","ops":[{"op":"tempStr","n":3},{"op":"draw","n":1}]},"warrior_50":{"id":"warrior_50","cls":"warrior","name":"不屈","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 7 護甲；若 HP 低於 50%，回復 4 HP","ops":[{"op":"block","n":7},{"op":"heal","n":4,"only":"hpLow"}]},"warrior_51":{"id":"warrior_51","cls":"warrior","name":"重甲","type":"skill","cost":2,"rarity":"uncommon","desc":"獲得等同手牌數 ×3 的護甲","ops":[{"op":"block","n":0,"scale":{"src":"hand","k":3}}]},"warrior_52":{"id":"warrior_52","cls":"warrior","name":"嗜血","type":"skill","cost":1,"rarity":"uncommon","desc":"失去 4 HP，獲得 1 能量並抽 2 張牌","ops":[{"op":"loseHp","n":4},{"op":"energy","n":1},{"op":"draw","n":2}]},"warrior_53":{"id":"warrior_53","cls":"warrior","name":"破陣","type":"skill","cost":1,"rarity":"uncommon","desc":"施加 2 脆弱與 1 虛弱","ops":[{"op":"status","s":"vuln","n":2},{"op":"status","s":"weak","n":1}]},"warrior_54":{"id":"warrior_54","cls":"warrior","name":"鐵血意志","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 6 護甲，移除自身 1 個負面狀態","ops":[{"op":"block","n":6},{"op":"cleanse","n":1}]},"warrior_55":{"id":"warrior_55","cls":"warrior","name":"反擊架勢","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 6 護甲，本回合每次受到攻擊，回敬 3 傷害","ops":[{"op":"block","n":6},{"op":"thorns","n":3}]},"warrior_56":{"id":"warrior_56","cls":"warrior","name":"強健體魄","type":"power","cost":1,"rarity":"uncommon","desc":"力量永久 +1","ops":[{"op":"str","n":1}],"power":true},"warrior_57":{"id":"warrior_57","cls":"warrior","name":"鋼鐵意志","type":"power","cost":1,"rarity":"uncommon","desc":"每回合結束額外獲得 3 護甲","ops":[{"op":"pw","k":"endBlock","n":3}],"power":true},"warrior_58":{"id":"warrior_58","cls":"warrior","name":"戰地醫療","type":"power","cost":1,"rarity":"uncommon","desc":"每回合結束回復 2 HP","ops":[{"op":"pw","k":"endHeal","n":2}],"power":true},"warrior_59":{"id":"warrior_59","cls":"warrior","name":"狂熱","type":"power","cost":1,"rarity":"uncommon","desc":"每打出一張攻擊牌，獲得 1 護甲","ops":[{"op":"pw","k":"atkBlock","n":1}],"power":true},"warrior_60":{"id":"warrior_60","cls":"warrior","name":"狂怒","type":"power","cost":1,"rarity":"uncommon","desc":"每當你失去 HP，獲得 1 力量（每回合最多 2 次）","ops":[{"op":"pw","k":"hpLossStr","n":1}],"power":true},"warrior_61":{"id":"warrior_61","cls":"warrior","name":"反擊光環","type":"power","cost":2,"rarity":"uncommon","desc":"每次受到攻擊，回敬 2 傷害","ops":[{"op":"pw","k":"thorns","n":2}],"power":true},"warrior_62":{"id":"warrior_62","cls":"warrior","name":"英勇氣魄","type":"power","cost":2,"rarity":"uncommon","desc":"每回合第一張攻擊牌 +4 傷害","ops":[{"op":"pw","k":"firstAtk","n":4}],"power":true},"warrior_63":{"id":"warrior_63","cls":"warrior","name":"戰意高昂","type":"power","cost":2,"rarity":"uncommon","desc":"每回合開始，本回合力量 +1","ops":[{"op":"pw","k":"startTempStr","n":1}],"power":true},"warrior_64":{"id":"warrior_64","cls":"warrior","name":"毀滅一擊","type":"attack","cost":3,"rarity":"rare","desc":"造成 35 傷害，失去 6 HP","ops":[{"op":"dmg","n":35,"hits":1},{"op":"loseHp","n":6}]},"warrior_65":{"id":"warrior_65","cls":"warrior","name":"戰神降臨","type":"attack","cost":2,"rarity":"rare","desc":"造成 14 傷害，力量永久 +1，消耗","ops":[{"op":"dmg","n":14,"hits":1},{"op":"str","n":1}],"exhaust":true},"warrior_66":{"id":"warrior_66","cls":"warrior","name":"山崩地裂","type":"attack","cost":3,"rarity":"rare","desc":"對全體造成 20 傷害，施加 2 脆弱","ops":[{"op":"dmg","n":20,"hits":1,"all":true},{"op":"status","s":"vuln","n":2,"all":true}]},"warrior_67":{"id":"warrior_67","cls":"warrior","name":"鋼鐵洪流","type":"attack","cost":2,"rarity":"rare","desc":"造成等同護甲 ×2 的傷害，失去所有護甲","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"block","k":2}},{"op":"loseAllBlock"}]},"warrior_68":{"id":"warrior_68","cls":"warrior","name":"不死之身","type":"skill","cost":3,"rarity":"rare","desc":"獲得 25 護甲，回復 10 HP，消耗","ops":[{"op":"block","n":25},{"op":"heal","n":10}],"exhaust":true},"warrior_69":{"id":"warrior_69","cls":"warrior","name":"戰爭祭祀","type":"skill","cost":1,"rarity":"rare","desc":"失去 8 HP，獲得 2 能量，抽 3 張牌，消耗","ops":[{"op":"loseHp","n":8},{"op":"energy","n":2},{"op":"draw","n":3}],"exhaust":true},"warrior_70":{"id":"warrior_70","cls":"warrior","name":"英魂之盾","type":"skill","cost":2,"rarity":"rare","desc":"獲得 12 護甲，下回合開始再獲得 12 護甲","ops":[{"op":"block","n":12},{"op":"nextTurn","k":"block","n":12}]},"warrior_71":{"id":"warrior_71","cls":"warrior","name":"威懾全場","type":"skill","cost":2,"rarity":"rare","desc":"全體施加 2 虛弱與 2 脆弱，獲得 8 護甲","ops":[{"op":"status","s":"weak","n":2,"all":true},{"op":"status","s":"vuln","n":2,"all":true},{"op":"block","n":8}]},"warrior_72":{"id":"warrior_72","cls":"warrior","name":"狂戰士","type":"power","cost":3,"rarity":"rare","desc":"力量永久 +3，每回合開始失去 2 HP","ops":[{"op":"str","n":3},{"op":"pw","k":"startLoseHp","n":2}],"power":true},"warrior_73":{"id":"warrior_73","cls":"warrior","name":"不朽堡壘","type":"power","cost":3,"rarity":"rare","desc":"回合結束時保留所有護甲","ops":[{"op":"pw","k":"retainAll","n":1}],"power":true},"warrior_74":{"id":"warrior_74","cls":"warrior","name":"戰神之怒","type":"power","cost":2,"rarity":"rare","desc":"每當你失去 HP，獲得 2 護甲","ops":[{"op":"pw","k":"hpLossBlock","n":2}],"power":true},"warrior_75":{"id":"warrior_75","cls":"warrior","name":"英雄之魂","type":"power","cost":3,"rarity":"rare","desc":"每回合開始，本回合力量 +2 並抽 1 張牌","ops":[{"op":"pw","k":"startTempStr","n":2},{"op":"pw","k":"startDraw","n":1}],"power":true},"mage_01":{"id":"mage_01","cls":"mage","name":"火球","type":"attack","cost":2,"rarity":"common","desc":"造成 9 傷害，施加 4 灼燒","ops":[{"op":"dmg","n":9,"hits":1},{"op":"status","s":"burn","n":4}]},"mage_02":{"id":"mage_02","cls":"mage","name":"火花","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，施加 2 灼燒","ops":[{"op":"dmg","n":5,"hits":1},{"op":"status","s":"burn","n":2}]},"mage_03":{"id":"mage_03","cls":"mage","name":"冰錐","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害，施加 1 虛弱","ops":[{"op":"dmg","n":6,"hits":1},{"op":"status","s":"weak","n":1}]},"mage_04":{"id":"mage_04","cls":"mage","name":"閃電鍊","type":"attack","cost":1,"rarity":"common","desc":"對隨機敵人造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3,"rand":true}]},"mage_05":{"id":"mage_05","cls":"mage","name":"魔力脈衝","type":"attack","cost":1,"rarity":"common","desc":"造成 4 傷害，獲得 2 魔力","ops":[{"op":"dmg","n":4,"hits":1},{"op":"mana","n":2}]},"mage_06":{"id":"mage_06","cls":"mage","name":"奧術箭","type":"attack","cost":0,"rarity":"common","desc":"造成 3 傷害，獲得 1 魔力","ops":[{"op":"dmg","n":3,"hits":1},{"op":"mana","n":1}]},"mage_07":{"id":"mage_07","cls":"mage","name":"爆裂術","type":"attack","cost":2,"rarity":"common","desc":"對全體造成 9 傷害","ops":[{"op":"dmg","n":9,"hits":1,"all":true}]},"mage_08":{"id":"mage_08","cls":"mage","name":"霜凍新星","type":"attack","cost":1,"rarity":"common","desc":"對全體造成 4 傷害","ops":[{"op":"dmg","n":4,"hits":1,"all":true}]},"mage_09":{"id":"mage_09","cls":"mage","name":"冰霜箭","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，獲得 3 護甲","ops":[{"op":"dmg","n":5,"hits":1},{"op":"block","n":3}]},"mage_10":{"id":"mage_10","cls":"mage","name":"火焰衝擊","type":"attack","cost":1,"rarity":"common","desc":"對全體施加 3 灼燒","ops":[{"op":"status","s":"burn","n":3,"all":true}]},"mage_11":{"id":"mage_11","cls":"mage","name":"電擊","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，每層魔力額外 +1（不消耗）","ops":[{"op":"dmg","n":5,"hits":1,"per":{"c":"mana","v":1}}]},"mage_12":{"id":"mage_12","cls":"mage","name":"魔法飛彈","type":"attack","cost":1,"rarity":"common","desc":"造成 3 傷害兩次","ops":[{"op":"dmg","n":3,"hits":2}]},"mage_13":{"id":"mage_13","cls":"mage","name":"雷霆一擊","type":"attack","cost":2,"rarity":"common","desc":"造成 14 傷害","ops":[{"op":"dmg","n":14,"hits":1}]},"mage_14":{"id":"mage_14","cls":"mage","name":"凍結","type":"attack","cost":1,"rarity":"common","desc":"造成 4 傷害，施加 2 虛弱","ops":[{"op":"dmg","n":4,"hits":1},{"op":"status","s":"weak","n":2}]},"mage_15":{"id":"mage_15","cls":"mage","name":"灼熱射線","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；目標有灼燒則 +4","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"burn","t":"add","v":4}}]},"mage_16":{"id":"mage_16","cls":"mage","name":"魔力護盾","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，獲得 1 魔力","ops":[{"op":"block","n":5},{"op":"mana","n":1}]},"mage_17":{"id":"mage_17","cls":"mage","name":"冰霜護甲","type":"skill","cost":1,"rarity":"common","desc":"獲得 6 護甲，施加 1 虛弱","ops":[{"op":"block","n":6},{"op":"status","s":"weak","n":1}]},"mage_18":{"id":"mage_18","cls":"mage","name":"專注","type":"skill","cost":1,"rarity":"common","desc":"抽 2 張牌","ops":[{"op":"draw","n":2}]},"mage_19":{"id":"mage_19","cls":"mage","name":"奧術洞察","type":"skill","cost":1,"rarity":"common","desc":"抽 1 張牌，獲得 2 魔力","ops":[{"op":"draw","n":1},{"op":"mana","n":2}]},"mage_20":{"id":"mage_20","cls":"mage","name":"冥想","type":"skill","cost":0,"rarity":"common","desc":"獲得 2 魔力","ops":[{"op":"mana","n":2}]},"mage_21":{"id":"mage_21","cls":"mage","name":"魔力湧泉","type":"skill","cost":1,"rarity":"common","desc":"獲得 3 魔力，獲得 3 護甲","ops":[{"op":"mana","n":3},{"op":"block","n":3}]},"mage_22":{"id":"mage_22","cls":"mage","name":"傳送","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，抽 1 張牌","ops":[{"op":"block","n":5},{"op":"draw","n":1}]},"mage_23":{"id":"mage_23","cls":"mage","name":"魔力轉換","type":"skill","cost":0,"rarity":"common","desc":"消耗 2 魔力，獲得 1 能量","ops":[{"op":"payMana","n":2},{"op":"energy","n":1}]},"mage_24":{"id":"mage_24","cls":"mage","name":"冰牆","type":"skill","cost":2,"rarity":"common","desc":"獲得 12 護甲，全體施加 1 虛弱","ops":[{"op":"block","n":12},{"op":"status","s":"weak","n":1,"all":true}]},"mage_25":{"id":"mage_25","cls":"mage","name":"反魔法","type":"skill","cost":1,"rarity":"common","desc":"移除自身 1 個負面狀態，獲得 5 護甲","ops":[{"op":"cleanse","n":1},{"op":"block","n":5}]},"mage_26":{"id":"mage_26","cls":"mage","name":"星象","type":"skill","cost":1,"rarity":"common","desc":"查看牌庫頂 3 張，選 1 張加入手牌","ops":[{"op":"scry","look":3,"pick":1}]},"mage_27":{"id":"mage_27","cls":"mage","name":"元素共鳴","type":"skill","cost":1,"rarity":"common","desc":"獲得 2 魔力，本回合下一張攻擊牌 +3 傷害","ops":[{"op":"mana","n":2},{"op":"nextAtk","n":3}]},"mage_28":{"id":"mage_28","cls":"mage","name":"霜之觸","type":"skill","cost":1,"rarity":"common","desc":"全體施加 1 虛弱，獲得 4 護甲","ops":[{"op":"status","s":"weak","n":1,"all":true},{"op":"block","n":4}]},"mage_29":{"id":"mage_29","cls":"mage","name":"點燃","type":"skill","cost":1,"rarity":"common","desc":"施加 5 灼燒","ops":[{"op":"status","s":"burn","n":5}]},"mage_30":{"id":"mage_30","cls":"mage","name":"魔力燃燒","type":"attack","cost":1,"rarity":"common","desc":"消耗全部魔力，每層造成 3 傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"mana","k":3,"consume":true}}]},"mage_31":{"id":"mage_31","cls":"mage","name":"靈光一閃","type":"skill","cost":0,"rarity":"common","desc":"抽 1 張牌，棄 1 張牌","ops":[{"op":"draw","n":1},{"op":"discard","n":1}]},"mage_32":{"id":"mage_32","cls":"mage","name":"奧術護盾","type":"skill","cost":2,"rarity":"common","desc":"獲得 10 護甲，獲得 2 魔力","ops":[{"op":"block","n":10},{"op":"mana","n":2}]},"mage_33":{"id":"mage_33","cls":"mage","name":"水晶屏障","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，下回合多抽 1 張牌","ops":[{"op":"block","n":4},{"op":"nextTurn","k":"draw","n":1}]},"mage_34":{"id":"mage_34","cls":"mage","name":"冰鏡","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲；若敵人有虛弱，再 +3 護甲","ops":[{"op":"block","n":5,"cond":{"c":"enemyWeak","t":"add","v":3}}]},"mage_35":{"id":"mage_35","cls":"mage","name":"吸取魔力","type":"skill","cost":1,"rarity":"common","desc":"回復 3 HP，獲得 2 魔力","ops":[{"op":"heal","n":3},{"op":"mana","n":2}]},"mage_36":{"id":"mage_36","cls":"mage","name":"連鎖閃電","type":"attack","cost":2,"rarity":"uncommon","desc":"對隨機敵人造成 4 傷害四次","ops":[{"op":"dmg","n":4,"hits":4,"rand":true}]},"mage_37":{"id":"mage_37","cls":"mage","name":"魔力爆發","type":"attack","cost":1,"rarity":"uncommon","desc":"消耗全部魔力，每層造成 4 傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"mana","k":4,"consume":true}}]},"mage_38":{"id":"mage_38","cls":"mage","name":"暴風雪","type":"attack","cost":2,"rarity":"uncommon","desc":"對全體造成 8 傷害，施加 1 虛弱","ops":[{"op":"dmg","n":8,"hits":1,"all":true},{"op":"status","s":"weak","n":1,"all":true}]},"mage_39":{"id":"mage_39","cls":"mage","name":"熔岩爆","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 8 傷害，施加 6 灼燒","ops":[{"op":"dmg","n":8,"hits":1},{"op":"status","s":"burn","n":6}]},"mage_40":{"id":"mage_40","cls":"mage","name":"冰霜箭雨","type":"attack","cost":2,"rarity":"uncommon","desc":"對全體造成 7 傷害，獲得 4 護甲","ops":[{"op":"dmg","n":7,"hits":1,"all":true},{"op":"block","n":4}]},"mage_41":{"id":"mage_41","cls":"mage","name":"星辰墜落","type":"attack","cost":3,"rarity":"uncommon","desc":"對全體造成 16 傷害","ops":[{"op":"dmg","n":16,"hits":1,"all":true}]},"mage_42":{"id":"mage_42","cls":"mage","name":"引爆","type":"attack","cost":1,"rarity":"uncommon","desc":"造成等同目標灼燒層數 ×2 的傷害，並移除灼燒","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"burn","k":2,"consume":true}}]},"mage_43":{"id":"mage_43","cls":"mage","name":"奧術風暴","type":"attack","cost":-1,"rarity":"uncommon","desc":"造成 X+1 次 4 傷害","ops":[{"op":"dmg","n":4,"hits":"X+1"}]},"mage_44":{"id":"mage_44","cls":"mage","name":"閃電風暴","type":"attack","cost":2,"rarity":"uncommon","desc":"對全體造成 5 傷害兩次","ops":[{"op":"dmg","n":5,"hits":2,"all":true}]},"mage_45":{"id":"mage_45","cls":"mage","name":"雷暴","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 6 傷害；若本回合打過技能牌，抽 1 張牌","ops":[{"op":"dmg","n":6,"hits":1},{"op":"draw","n":1,"only":"skillPlayed"}]},"mage_46":{"id":"mage_46","cls":"mage","name":"火焰護盾","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 6 護甲，本回合被攻擊時，攻擊者受 2 灼燒","ops":[{"op":"block","n":6},{"op":"thornsBurn","n":2}]},"mage_47":{"id":"mage_47","cls":"mage","name":"魔導書","type":"skill","cost":1,"rarity":"uncommon","desc":"抽 3 張牌，下回合少抽 1 張牌","ops":[{"op":"draw","n":3},{"op":"nextTurn","k":"draw","n":-1}]},"mage_48":{"id":"mage_48","cls":"mage","name":"時間扭曲","type":"skill","cost":2,"rarity":"uncommon","desc":"抽 2 張牌，獲得 1 能量","ops":[{"op":"draw","n":2},{"op":"energy","n":1}]},"mage_49":{"id":"mage_49","cls":"mage","name":"冰冷心靈","type":"skill","cost":1,"rarity":"uncommon","desc":"施加 2 虛弱，獲得 5 護甲","ops":[{"op":"status","s":"weak","n":2},{"op":"block","n":5}]},"mage_50":{"id":"mage_50","cls":"mage","name":"魔力潮汐","type":"skill","cost":1,"rarity":"uncommon","desc":"魔力翻倍（上限 10）","ops":[{"op":"manaDouble"}]},"mage_51":{"id":"mage_51","cls":"mage","name":"增幅","type":"skill","cost":1,"rarity":"uncommon","desc":"本回合下一張攻擊牌打出兩次","ops":[{"op":"nextAtkTwice"}]},"mage_52":{"id":"mage_52","cls":"mage","name":"元素融合","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 2 魔力，下一張牌費用 -1","ops":[{"op":"mana","n":2},{"op":"nextCost","n":-1}]},"mage_53":{"id":"mage_53","cls":"mage","name":"鏡像","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 7 護甲，抽 1 張牌","ops":[{"op":"block","n":7},{"op":"draw","n":1}]},"mage_54":{"id":"mage_54","cls":"mage","name":"封印","type":"skill","cost":1,"rarity":"uncommon","desc":"施加 3 虛弱","ops":[{"op":"status","s":"weak","n":3}]},"mage_55":{"id":"mage_55","cls":"mage","name":"反射護盾","type":"skill","cost":2,"rarity":"uncommon","desc":"獲得 12 護甲，本回合被攻擊時回敬 3 傷害","ops":[{"op":"block","n":12},{"op":"thorns","n":3}]},"mage_56":{"id":"mage_56","cls":"mage","name":"奧術迴路","type":"power","cost":1,"rarity":"uncommon","desc":"每打出 3 張牌，獲得 1 魔力","ops":[{"op":"pw","k":"every3Mana","n":1}],"power":true},"mage_57":{"id":"mage_57","cls":"mage","name":"火焰之心","type":"power","cost":1,"rarity":"uncommon","desc":"每回合開始，對全體施加 2 灼燒","ops":[{"op":"pw","k":"startBurnAll","n":2}],"power":true},"mage_58":{"id":"mage_58","cls":"mage","name":"冰霜靈魂","type":"power","cost":1,"rarity":"uncommon","desc":"每回合結束獲得 3 護甲與 1 魔力","ops":[{"op":"pw","k":"endBlock","n":3},{"op":"pw","k":"endMana","n":1}],"power":true},"mage_59":{"id":"mage_59","cls":"mage","name":"雷電附體","type":"power","cost":1,"rarity":"uncommon","desc":"每回合開始，對隨機敵人造成 4 傷害","ops":[{"op":"pw","k":"startZap","n":4}],"power":true},"mage_60":{"id":"mage_60","cls":"mage","name":"魔力泉源","type":"power","cost":1,"rarity":"uncommon","desc":"每回合開始獲得 2 魔力","ops":[{"op":"pw","k":"startMana","n":2}],"power":true},"mage_61":{"id":"mage_61","cls":"mage","name":"智者之眼","type":"power","cost":2,"rarity":"uncommon","desc":"每回合多抽 1 張牌","ops":[{"op":"pw","k":"startDraw","n":1}],"power":true},"mage_62":{"id":"mage_62","cls":"mage","name":"魔法天賦","type":"power","cost":2,"rarity":"uncommon","desc":"每打出一張技能牌，獲得 1 魔力","ops":[{"op":"pw","k":"skillMana","n":1}],"power":true},"mage_63":{"id":"mage_63","cls":"mage","name":"元素親和","type":"power","cost":1,"rarity":"uncommon","desc":"每打出一張攻擊牌，對目標施加 1 灼燒","ops":[{"op":"pw","k":"atkBurn","n":1}],"power":true},"mage_64":{"id":"mage_64","cls":"mage","name":"流星雨","type":"attack","cost":3,"rarity":"rare","desc":"對全體造成 25 傷害，施加 3 灼燒","ops":[{"op":"dmg","n":25,"hits":1,"all":true},{"op":"status","s":"burn","n":3,"all":true}]},"mage_65":{"id":"mage_65","cls":"mage","name":"絕對零度","type":"attack","cost":2,"rarity":"rare","desc":"對全體造成 10 傷害，施加 2 虛弱與 2 脆弱","ops":[{"op":"dmg","n":10,"hits":1,"all":true},{"op":"status","s":"weak","n":2,"all":true},{"op":"status","s":"vuln","n":2,"all":true}]},"mage_66":{"id":"mage_66","cls":"mage","name":"魔力審判","type":"attack","cost":2,"rarity":"rare","desc":"消耗全部魔力，每層造成 5 傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"mana","k":5,"consume":true}}]},"mage_67":{"id":"mage_67","cls":"mage","name":"末日焚城","type":"attack","cost":3,"rarity":"rare","desc":"造成 24 傷害，施加 10 灼燒","ops":[{"op":"dmg","n":24,"hits":1},{"op":"status","s":"burn","n":10}]},"mage_68":{"id":"mage_68","cls":"mage","name":"時間停止","type":"skill","cost":2,"rarity":"rare","desc":"抽 4 張牌，獲得 2 能量，消耗","ops":[{"op":"draw","n":4},{"op":"energy","n":2}],"exhaust":true},"mage_69":{"id":"mage_69","cls":"mage","name":"魔力化身","type":"skill","cost":1,"rarity":"rare","desc":"獲得等同魔力 ×3 的護甲","ops":[{"op":"block","n":0,"scale":{"src":"mana","k":3}}]},"mage_70":{"id":"mage_70","cls":"mage","name":"奧術結界","type":"skill","cost":2,"rarity":"rare","desc":"獲得 20 護甲，消耗","ops":[{"op":"block","n":20}],"exhaust":true},"mage_71":{"id":"mage_71","cls":"mage","name":"大魔導師的智慧","type":"skill","cost":1,"rarity":"rare","desc":"抽 3 張牌，本回合選 1 張牌費用變 0","ops":[{"op":"draw","n":3},{"op":"pickFree"}]},"mage_72":{"id":"mage_72","cls":"mage","name":"元素主宰","type":"power","cost":3,"rarity":"rare","desc":"每回合開始獲得 3 魔力並抽 1 張牌","ops":[{"op":"pw","k":"startMana","n":3},{"op":"pw","k":"startDraw","n":1}],"power":true},"mage_73":{"id":"mage_73","cls":"mage","name":"無盡奧術","type":"power","cost":3,"rarity":"rare","desc":"每打出一張牌，對全體造成 2 傷害","ops":[{"op":"pw","k":"playAoe","n":2}],"power":true},"mage_74":{"id":"mage_74","cls":"mage","name":"秘法飽和","type":"power","cost":2,"rarity":"rare","desc":"每回合結束，每層魔力對全體造成 1 傷害","ops":[{"op":"pw","k":"endManaAoe","n":1}],"power":true},"mage_75":{"id":"mage_75","cls":"mage","name":"法神降臨","type":"power","cost":3,"rarity":"rare","desc":"每回合第一張打出的牌費用為 0","ops":[{"op":"pw","k":"firstFree","n":1}],"power":true},"archer_01":{"id":"archer_01","cls":"archer","name":"精準射擊","type":"attack","cost":1,"rarity":"common","desc":"造成 7 傷害","ops":[{"op":"dmg","n":7,"hits":1}]},"archer_02":{"id":"archer_02","cls":"archer","name":"瞄準","type":"skill","cost":1,"rarity":"common","desc":"施加 2 標記，獲得 3 護甲","ops":[{"op":"status","s":"mark","n":2},{"op":"block","n":3}]},"archer_03":{"id":"archer_03","cls":"archer","name":"三連箭","type":"attack","cost":1,"rarity":"common","desc":"造成 2 傷害三次","ops":[{"op":"dmg","n":2,"hits":3}]},"archer_04":{"id":"archer_04","cls":"archer","name":"穿透箭","type":"attack","cost":1,"rarity":"common","desc":"對全體造成 4 傷害","ops":[{"op":"dmg","n":4,"hits":1,"all":true}]},"archer_05":{"id":"archer_05","cls":"archer","name":"連珠箭","type":"attack","cost":2,"rarity":"common","desc":"造成 3 傷害五次","ops":[{"op":"dmg","n":3,"hits":5}]},"archer_06":{"id":"archer_06","cls":"archer","name":"疾射","type":"attack","cost":0,"rarity":"common","desc":"造成 3 傷害","ops":[{"op":"dmg","n":3,"hits":1}]},"archer_07":{"id":"archer_07","cls":"archer","name":"標記射擊","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，施加 1 標記","ops":[{"op":"dmg","n":5,"hits":1},{"op":"status","s":"mark","n":1}]},"archer_08":{"id":"archer_08","cls":"archer","name":"彈跳箭","type":"attack","cost":1,"rarity":"common","desc":"對隨機敵人造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3,"rand":true}]},"archer_09":{"id":"archer_09","cls":"archer","name":"弱點擊破","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；目標有標記則 +4","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"mark","t":"add","v":4}}]},"archer_10":{"id":"archer_10","cls":"archer","name":"回身射","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，獲得 3 護甲","ops":[{"op":"dmg","n":5,"hits":1},{"op":"block","n":3}]},"archer_11":{"id":"archer_11","cls":"archer","name":"重箭","type":"attack","cost":2,"rarity":"common","desc":"造成 13 傷害","ops":[{"op":"dmg","n":13,"hits":1}]},"archer_12":{"id":"archer_12","cls":"archer","name":"箭雨","type":"attack","cost":2,"rarity":"common","desc":"對全體造成 8 傷害","ops":[{"op":"dmg","n":8,"hits":1,"all":true}]},"archer_13":{"id":"archer_13","cls":"archer","name":"低射","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害，施加 1 虛弱","ops":[{"op":"dmg","n":6,"hits":1},{"op":"status","s":"weak","n":1}]},"archer_14":{"id":"archer_14","cls":"archer","name":"絆馬索","type":"skill","cost":1,"rarity":"common","desc":"施加 1 虛弱，獲得 4 護甲","ops":[{"op":"status","s":"weak","n":1},{"op":"block","n":4}]},"archer_15":{"id":"archer_15","cls":"archer","name":"閃避","type":"skill","cost":1,"rarity":"common","desc":"獲得 6 護甲","ops":[{"op":"block","n":6}]},"archer_16":{"id":"archer_16","cls":"archer","name":"後撤步","type":"skill","cost":0,"rarity":"common","desc":"獲得 2 護甲","ops":[{"op":"block","n":2}]},"archer_17":{"id":"archer_17","cls":"archer","name":"翻滾","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，抽 1 張牌","ops":[{"op":"block","n":5},{"op":"draw","n":1}]},"archer_18":{"id":"archer_18","cls":"archer","name":"探路","type":"skill","cost":1,"rarity":"common","desc":"抽 2 張牌","ops":[{"op":"draw","n":2}]},"archer_19":{"id":"archer_19","cls":"archer","name":"鷹眼","type":"skill","cost":0,"rarity":"common","desc":"施加 1 標記","ops":[{"op":"status","s":"mark","n":1}]},"archer_20":{"id":"archer_20","cls":"archer","name":"備箭","type":"skill","cost":0,"rarity":"common","desc":"抽 1 張牌，失去 1 HP","ops":[{"op":"draw","n":1},{"op":"loseHp","n":1}]},"archer_21":{"id":"archer_21","cls":"archer","name":"偽裝","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，施加 1 標記","ops":[{"op":"block","n":4},{"op":"status","s":"mark","n":1}]},"archer_22":{"id":"archer_22","cls":"archer","name":"獵人本能","type":"skill","cost":1,"rarity":"common","desc":"抽 1 張牌，本回合下一張攻擊牌 +3 傷害","ops":[{"op":"draw","n":1},{"op":"nextAtk","n":3}]},"archer_23":{"id":"archer_23","cls":"archer","name":"輕功","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，本回合下一張攻擊牌 +2 傷害","ops":[{"op":"block","n":5},{"op":"nextAtk","n":2}]},"archer_24":{"id":"archer_24","cls":"archer","name":"陷阱","type":"skill","cost":1,"rarity":"common","desc":"施加 2 脆弱","ops":[{"op":"status","s":"vuln","n":2}]},"archer_25":{"id":"archer_25","cls":"archer","name":"標記獵物","type":"skill","cost":1,"rarity":"common","desc":"施加 3 標記","ops":[{"op":"status","s":"mark","n":3}]},"archer_26":{"id":"archer_26","cls":"archer","name":"箭袋補給","type":"skill","cost":1,"rarity":"common","desc":"獲得 4 護甲，將棄牌堆 1 張攻擊牌置於牌庫頂","ops":[{"op":"block","n":4},{"op":"fetch","type":"attack","to":"top"}]},"archer_27":{"id":"archer_27","cls":"archer","name":"穩定呼吸","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，下回合第一張攻擊牌 +3 傷害","ops":[{"op":"block","n":5},{"op":"nextTurn","k":"atk","n":3}]},"archer_28":{"id":"archer_28","cls":"archer","name":"號角","type":"skill","cost":1,"rarity":"common","desc":"全體施加 1 標記，獲得 3 護甲","ops":[{"op":"status","s":"mark","n":1,"all":true},{"op":"block","n":3}]},"archer_29":{"id":"archer_29","cls":"archer","name":"掩護","type":"skill","cost":2,"rarity":"common","desc":"獲得 11 護甲","ops":[{"op":"block","n":11}]},"archer_30":{"id":"archer_30","cls":"archer","name":"急救草藥","type":"skill","cost":1,"rarity":"common","desc":"回復 4 HP，抽 1 張牌","ops":[{"op":"heal","n":4},{"op":"draw","n":1}]},"archer_31":{"id":"archer_31","cls":"archer","name":"穿雲箭","type":"attack","cost":1,"rarity":"common","desc":"造成 7 傷害；本回合已打出另一張攻擊牌則 +3","ops":[{"op":"dmg","n":7,"hits":1,"cond":{"c":"atkPlayed","t":"add","v":3}}]},"archer_32":{"id":"archer_32","cls":"archer","name":"貫穿","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，抽 1 張牌","ops":[{"op":"dmg","n":5,"hits":1},{"op":"draw","n":1}]},"archer_33":{"id":"archer_33","cls":"archer","name":"凌空三連","type":"attack","cost":2,"rarity":"common","desc":"造成 4 傷害三次","ops":[{"op":"dmg","n":4,"hits":3}]},"archer_34":{"id":"archer_34","cls":"archer","name":"追射","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；目標有標記則抽 1 張牌","ops":[{"op":"dmg","n":6,"hits":1},{"op":"draw","n":1,"only":"targetMark"}]},"archer_35":{"id":"archer_35","cls":"archer","name":"快速補箭","type":"skill","cost":0,"rarity":"common","desc":"抽 1 張牌，棄 1 張牌","ops":[{"op":"draw","n":1},{"op":"discard","n":1}]},"archer_36":{"id":"archer_36","cls":"archer","name":"箭雨傾瀉","type":"attack","cost":2,"rarity":"uncommon","desc":"對全體造成 6 傷害兩次","ops":[{"op":"dmg","n":6,"hits":2,"all":true}]},"archer_37":{"id":"archer_37","cls":"archer","name":"爆頭","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 15 傷害；目標標記≥3 則傷害翻倍","ops":[{"op":"dmg","n":15,"hits":1,"cond":{"c":"mark3","t":"mul","v":2}}]},"archer_38":{"id":"archer_38","cls":"archer","name":"連弩","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 2 傷害四次","ops":[{"op":"dmg","n":2,"hits":4}]},"archer_39":{"id":"archer_39","cls":"archer","name":"精準三連","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 3 傷害三次，施加 1 標記","ops":[{"op":"dmg","n":3,"hits":3},{"op":"status","s":"mark","n":1}]},"archer_40":{"id":"archer_40","cls":"archer","name":"破甲箭","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 5 傷害，施加 1 脆弱","ops":[{"op":"dmg","n":5,"hits":1},{"op":"status","s":"vuln","n":1}]},"archer_41":{"id":"archer_41","cls":"archer","name":"疾風連射","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 3 傷害六次","ops":[{"op":"dmg","n":3,"hits":6}]},"archer_42":{"id":"archer_42","cls":"archer","name":"重弩","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 14 傷害，施加 1 標記","ops":[{"op":"dmg","n":14,"hits":1},{"op":"status","s":"mark","n":1}]},"archer_43":{"id":"archer_43","cls":"archer","name":"貫穿全場","type":"attack","cost":1,"rarity":"uncommon","desc":"對全體造成 5 傷害，施加 1 標記","ops":[{"op":"dmg","n":5,"hits":1,"all":true},{"op":"status","s":"mark","n":1,"all":true}]},"archer_44":{"id":"archer_44","cls":"archer","name":"狙擊","type":"attack","cost":3,"rarity":"uncommon","desc":"造成 25 傷害","ops":[{"op":"dmg","n":25,"hits":1}]},"archer_45":{"id":"archer_45","cls":"archer","name":"反擊射","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 6 傷害，獲得 4 護甲","ops":[{"op":"dmg","n":6,"hits":1},{"op":"block","n":4}]},"archer_46":{"id":"archer_46","cls":"archer","name":"追擊","type":"attack","cost":0,"rarity":"uncommon","desc":"造成 3 傷害，本回合每打出過一張牌 +1","ops":[{"op":"dmg","n":3,"hits":1,"per":{"c":"cardPlayed","v":1}}]},"archer_47":{"id":"archer_47","cls":"archer","name":"靈巧身手","type":"skill","cost":0,"rarity":"uncommon","desc":"抽 2 張牌，棄 1 張牌","ops":[{"op":"draw","n":2},{"op":"discard","n":1}]},"archer_48":{"id":"archer_48","cls":"archer","name":"偵察","type":"skill","cost":1,"rarity":"uncommon","desc":"查看牌庫頂 5 張，選 2 張加入手牌，其餘棄置","ops":[{"op":"scry","look":5,"pick":2,"discardRest":true}]},"archer_49":{"id":"archer_49","cls":"archer","name":"陷阱網","type":"skill","cost":2,"rarity":"uncommon","desc":"全體施加 1 脆弱與 1 虛弱，獲得 8 護甲","ops":[{"op":"status","s":"vuln","n":1,"all":true},{"op":"status","s":"weak","n":1,"all":true},{"op":"block","n":8}]},"archer_50":{"id":"archer_50","cls":"archer","name":"專注瞄準","type":"skill","cost":1,"rarity":"uncommon","desc":"下一張攻擊牌傷害翻倍","ops":[{"op":"nextAtkMult","n":2}]},"archer_51":{"id":"archer_51","cls":"archer","name":"連續標記","type":"skill","cost":1,"rarity":"uncommon","desc":"全體施加 2 標記","ops":[{"op":"status","s":"mark","n":2,"all":true}]},"archer_52":{"id":"archer_52","cls":"archer","name":"風之祝福","type":"skill","cost":1,"rarity":"uncommon","desc":"下回合開始獲得 1 能量並抽 1 張牌","ops":[{"op":"nextTurn","k":"energy","n":1},{"op":"nextTurn","k":"draw","n":1}]},"archer_53":{"id":"archer_53","cls":"archer","name":"疾行","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 7 護甲，棄 1 張牌","ops":[{"op":"block","n":7},{"op":"discard","n":1}]},"archer_54":{"id":"archer_54","cls":"archer","name":"猛禽之眼","type":"skill","cost":1,"rarity":"uncommon","desc":"抽 1 張牌，施加 2 標記","ops":[{"op":"draw","n":1},{"op":"status","s":"mark","n":2}]},"archer_55":{"id":"archer_55","cls":"archer","name":"補給","type":"skill","cost":1,"rarity":"uncommon","desc":"抽 3 張牌，棄 1 張牌","ops":[{"op":"draw","n":3},{"op":"discard","n":1}]},"archer_56":{"id":"archer_56","cls":"archer","name":"獵人直覺","type":"power","cost":1,"rarity":"uncommon","desc":"每回合開始，對全體施加 2 標記","ops":[{"op":"pw","k":"startMarkAll","n":2}],"power":true},"archer_57":{"id":"archer_57","cls":"archer","name":"準備充分","type":"power","cost":2,"rarity":"uncommon","desc":"每回合開始多抽 1 張牌","ops":[{"op":"pw","k":"startDraw","n":1}],"power":true},"archer_58":{"id":"archer_58","cls":"archer","name":"精準箭術","type":"power","cost":1,"rarity":"uncommon","desc":"所有攻擊每次命中 +1 傷害","ops":[{"op":"pw","k":"hitBonus","n":1}],"power":true},"archer_59":{"id":"archer_59","cls":"archer","name":"逃脫專家","type":"power","cost":1,"rarity":"uncommon","desc":"每打出一張技能牌，獲得 1 護甲","ops":[{"op":"pw","k":"skillBlock","n":1}],"power":true},"archer_60":{"id":"archer_60","cls":"archer","name":"連擊手","type":"power","cost":2,"rarity":"uncommon","desc":"每回合打出第 3 張攻擊牌時，抽 1 張牌","ops":[{"op":"pw","k":"third","n":1}],"power":true},"archer_61":{"id":"archer_61","cls":"archer","name":"野性直覺","type":"power","cost":1,"rarity":"uncommon","desc":"每回合第一次受到的攻擊傷害減半","ops":[{"op":"pw","k":"firstHitHalf","n":1}],"power":true},"archer_62":{"id":"archer_62","cls":"archer","name":"獵人印記","type":"power","cost":2,"rarity":"uncommon","desc":"標記不再隨回合減少","ops":[{"op":"pw","k":"marksPersist","n":1}],"power":true},"archer_63":{"id":"archer_63","cls":"archer","name":"遊俠之道","type":"power","cost":1,"rarity":"uncommon","desc":"每打出一張 0 費牌，獲得 2 護甲","ops":[{"op":"pw","k":"zeroBlock","n":2}],"power":true},"archer_64":{"id":"archer_64","cls":"archer","name":"萬箭齊發","type":"attack","cost":3,"rarity":"rare","desc":"對全體造成 6 傷害四次","ops":[{"op":"dmg","n":6,"hits":4,"all":true}]},"archer_65":{"id":"archer_65","cls":"archer","name":"一箭穿心","type":"attack","cost":2,"rarity":"rare","desc":"目標有標記時造成 30 傷害，否則 12","ops":[{"op":"dmg","n":12,"hits":1,"cond":{"c":"mark","t":"set","v":30}}]},"archer_66":{"id":"archer_66","cls":"archer","name":"連珠無間","type":"attack","cost":2,"rarity":"rare","desc":"造成 2 傷害八次","ops":[{"op":"dmg","n":2,"hits":8}]},"archer_67":{"id":"archer_67","cls":"archer","name":"狙神一擊","type":"attack","cost":3,"rarity":"rare","desc":"造成 40 傷害，消耗","ops":[{"op":"dmg","n":40,"hits":1}],"exhaust":true},"archer_68":{"id":"archer_68","cls":"archer","name":"影分身","type":"skill","cost":2,"rarity":"rare","desc":"獲得 15 護甲，抽 2 張牌，消耗","ops":[{"op":"block","n":15},{"op":"draw","n":2}],"exhaust":true},"archer_69":{"id":"archer_69","cls":"archer","name":"風暴箭袋","type":"skill","cost":1,"rarity":"rare","desc":"將 2 張「箭矢」加入手牌（0 費，造成 4 傷害，消耗）","ops":[{"op":"addCard","id":"tok_arrow","n":2}]},"archer_70":{"id":"archer_70","cls":"archer","name":"獵殺時刻","type":"skill","cost":1,"rarity":"rare","desc":"全體施加 3 標記，下一張攻擊牌傷害翻倍","ops":[{"op":"status","s":"mark","n":3,"all":true},{"op":"nextAtkMult","n":2}]},"archer_71":{"id":"archer_71","cls":"archer","name":"戰術撤退","type":"skill","cost":2,"rarity":"rare","desc":"獲得 16 護甲，抽 2 張牌，消耗","ops":[{"op":"block","n":16},{"op":"draw","n":2}],"exhaust":true},"archer_72":{"id":"archer_72","cls":"archer","name":"神射手","type":"power","cost":3,"rarity":"rare","desc":"所有攻擊每次命中 +2 傷害","ops":[{"op":"pw","k":"hitBonus","n":2}],"power":true},"archer_73":{"id":"archer_73","cls":"archer","name":"狩獵季","type":"power","cost":2,"rarity":"rare","desc":"每回合開始，將 1 張「箭矢」加入手牌","ops":[{"op":"pw","k":"startArrow","n":1}],"power":true},"archer_74":{"id":"archer_74","cls":"archer","name":"萬象之眼","type":"power","cost":3,"rarity":"rare","desc":"每回合開始獲得 1 能量並抽 1 張牌","ops":[{"op":"pw","k":"startEnergy","n":1},{"op":"pw","k":"startDraw","n":1}],"power":true},"archer_75":{"id":"archer_75","cls":"archer","name":"森林之王","type":"power","cost":3,"rarity":"rare","desc":"每打出一張攻擊牌，施加 1 標記並回復 1 HP","ops":[{"op":"pw","k":"atkMarkHeal","n":1}],"power":true},"rogue_01":{"id":"rogue_01","cls":"rogue","name":"匕首刺擊","type":"attack","cost":0,"rarity":"common","desc":"造成 3 傷害","ops":[{"op":"dmg","n":3,"hits":1}]},"rogue_02":{"id":"rogue_02","cls":"rogue","name":"快刀","type":"attack","cost":1,"rarity":"common","desc":"造成 4 傷害兩次","ops":[{"op":"dmg","n":4,"hits":2}]},"rogue_03":{"id":"rogue_03","cls":"rogue","name":"毒刃","type":"attack","cost":1,"rarity":"common","desc":"造成 4 傷害，施加 2 毒","ops":[{"op":"dmg","n":4,"hits":1},{"op":"status","s":"poison","n":2}]},"rogue_04":{"id":"rogue_04","cls":"rogue","name":"背刺","type":"attack","cost":1,"rarity":"common","desc":"造成 6 傷害；目標有毒則改為 12","ops":[{"op":"dmg","n":6,"hits":1,"cond":{"c":"poison","t":"set","v":12}}]},"rogue_05":{"id":"rogue_05","cls":"rogue","name":"飛刀","type":"attack","cost":0,"rarity":"common","desc":"造成 2 傷害，施加 1 毒","ops":[{"op":"dmg","n":2,"hits":1},{"op":"status","s":"poison","n":1}]},"rogue_06":{"id":"rogue_06","cls":"rogue","name":"割喉","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，施加 1 虛弱","ops":[{"op":"dmg","n":5,"hits":1},{"op":"status","s":"weak","n":1}]},"rogue_07":{"id":"rogue_07","cls":"rogue","name":"毒霧","type":"skill","cost":1,"rarity":"common","desc":"全體施加 2 毒","ops":[{"op":"status","s":"poison","n":2,"all":true}]},"rogue_08":{"id":"rogue_08","cls":"rogue","name":"連環飛刀","type":"attack","cost":1,"rarity":"common","desc":"對隨機敵人造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3,"rand":true}]},"rogue_09":{"id":"rogue_09","cls":"rogue","name":"淬毒","type":"skill","cost":1,"rarity":"common","desc":"施加 4 毒","ops":[{"op":"status","s":"poison","n":4}]},"rogue_10":{"id":"rogue_10","cls":"rogue","name":"偷襲","type":"attack","cost":1,"rarity":"common","desc":"造成 7 傷害；若是本回合第一張牌則 +4","ops":[{"op":"dmg","n":7,"hits":1,"cond":{"c":"firstCard","t":"add","v":4}}]},"rogue_11":{"id":"rogue_11","cls":"rogue","name":"暗影步","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，抽 1 張牌","ops":[{"op":"block","n":5},{"op":"draw","n":1}]},"rogue_12":{"id":"rogue_12","cls":"rogue","name":"煙霧彈","type":"skill","cost":1,"rarity":"common","desc":"獲得 6 護甲，施加 1 虛弱","ops":[{"op":"block","n":6},{"op":"status","s":"weak","n":1}]},"rogue_13":{"id":"rogue_13","cls":"rogue","name":"翻滾","type":"skill","cost":0,"rarity":"common","desc":"獲得 2 護甲","ops":[{"op":"block","n":2}]},"rogue_14":{"id":"rogue_14","cls":"rogue","name":"迴避","type":"skill","cost":1,"rarity":"common","desc":"獲得 6 護甲","ops":[{"op":"block","n":6}]},"rogue_15":{"id":"rogue_15","cls":"rogue","name":"精密計算","type":"skill","cost":0,"rarity":"common","desc":"抽 2 張牌，棄 1 張牌","ops":[{"op":"draw","n":2},{"op":"discard","n":1}]},"rogue_16":{"id":"rogue_16","cls":"rogue","name":"順手牽羊","type":"skill","cost":0,"rarity":"common","desc":"抽 1 張牌，失去 2 HP","ops":[{"op":"draw","n":1},{"op":"loseHp","n":2}]},"rogue_17":{"id":"rogue_17","cls":"rogue","name":"速攻","type":"attack","cost":0,"rarity":"common","desc":"造成 4 傷害，棄 1 張牌","ops":[{"op":"dmg","n":4,"hits":1},{"op":"discard","n":1}]},"rogue_18":{"id":"rogue_18","cls":"rogue","name":"暗刃","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，抽 1 張牌","ops":[{"op":"dmg","n":5,"hits":1},{"op":"draw","n":1}]},"rogue_19":{"id":"rogue_19","cls":"rogue","name":"陰影斬","type":"attack","cost":2,"rarity":"common","desc":"造成 12 傷害，獲得 4 護甲","ops":[{"op":"dmg","n":12,"hits":1},{"op":"block","n":4}]},"rogue_20":{"id":"rogue_20","cls":"rogue","name":"劇毒打擊","type":"attack","cost":2,"rarity":"common","desc":"造成 6 傷害，施加 5 毒","ops":[{"op":"dmg","n":6,"hits":1},{"op":"status","s":"poison","n":5}]},"rogue_21":{"id":"rogue_21","cls":"rogue","name":"假動作","type":"skill","cost":1,"rarity":"common","desc":"施加 2 虛弱，獲得 3 護甲","ops":[{"op":"status","s":"weak","n":2},{"op":"block","n":3}]},"rogue_22":{"id":"rogue_22","cls":"rogue","name":"看穿","type":"skill","cost":1,"rarity":"common","desc":"施加 2 脆弱","ops":[{"op":"status","s":"vuln","n":2}]},"rogue_23":{"id":"rogue_23","cls":"rogue","name":"毒膏","type":"skill","cost":1,"rarity":"common","desc":"本回合你的攻擊牌額外施加 1 毒","ops":[{"op":"atkPoisonTurn","n":1}]},"rogue_24":{"id":"rogue_24","cls":"rogue","name":"擾亂","type":"skill","cost":0,"rarity":"common","desc":"施加 1 虛弱，棄 1 張牌","ops":[{"op":"status","s":"weak","n":1},{"op":"discard","n":1}]},"rogue_25":{"id":"rogue_25","cls":"rogue","name":"毒囊","type":"skill","cost":1,"rarity":"common","desc":"施加 2 毒，獲得 3 護甲","ops":[{"op":"status","s":"poison","n":2},{"op":"block","n":3}]},"rogue_26":{"id":"rogue_26","cls":"rogue","name":"絆腳","type":"attack","cost":1,"rarity":"common","desc":"造成 5 傷害，施加 1 脆弱","ops":[{"op":"dmg","n":5,"hits":1},{"op":"status","s":"vuln","n":1}]},"rogue_27":{"id":"rogue_27","cls":"rogue","name":"偷襲者","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲，本回合下一張攻擊牌 +4 傷害","ops":[{"op":"block","n":5},{"op":"nextAtk","n":4}]},"rogue_28":{"id":"rogue_28","cls":"rogue","name":"臨機應變","type":"skill","cost":0,"rarity":"common","desc":"棄 2 張牌，獲得 1 能量","ops":[{"op":"discard","n":2},{"op":"energy","n":1}]},"rogue_29":{"id":"rogue_29","cls":"rogue","name":"暗影護體","type":"skill","cost":2,"rarity":"common","desc":"獲得 12 護甲","ops":[{"op":"block","n":12}]},"rogue_30":{"id":"rogue_30","cls":"rogue","name":"毒刺","type":"attack","cost":0,"rarity":"common","desc":"造成 2 傷害，施加 2 毒","ops":[{"op":"dmg","n":2,"hits":1},{"op":"status","s":"poison","n":2}]},"rogue_31":{"id":"rogue_31","cls":"rogue","name":"割裂","type":"attack","cost":1,"rarity":"common","desc":"造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3}]},"rogue_32":{"id":"rogue_32","cls":"rogue","name":"絕處逢生","type":"skill","cost":1,"rarity":"common","desc":"獲得 5 護甲；若手牌≤2 張，額外抽 2 張牌","ops":[{"op":"block","n":5},{"op":"draw","n":2,"only":"handLE2"}]},"rogue_33":{"id":"rogue_33","cls":"rogue","name":"催化","type":"skill","cost":1,"rarity":"common","desc":"目標毒層數 +2","ops":[{"op":"status","s":"poison","n":2}]},"rogue_34":{"id":"rogue_34","cls":"rogue","name":"疾風連刺","type":"attack","cost":1,"rarity":"common","desc":"造成 2 傷害四次","ops":[{"op":"dmg","n":2,"hits":4}]},"rogue_35":{"id":"rogue_35","cls":"rogue","name":"輕盈","type":"skill","cost":0,"rarity":"common","desc":"獲得 2 護甲，棄 1 張牌","ops":[{"op":"block","n":2},{"op":"discard","n":1}]},"rogue_36":{"id":"rogue_36","cls":"rogue","name":"引毒","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 8 傷害，施加 4 毒","ops":[{"op":"dmg","n":8,"hits":1},{"op":"status","s":"poison","n":4}]},"rogue_37":{"id":"rogue_37","cls":"rogue","name":"毒爆","type":"attack","cost":1,"rarity":"uncommon","desc":"造成等同目標毒層數的傷害（不移除毒）","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"poison","k":1}}]},"rogue_38":{"id":"rogue_38","cls":"rogue","name":"暗影連斬","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 3 傷害三次","ops":[{"op":"dmg","n":3,"hits":3}]},"rogue_39":{"id":"rogue_39","cls":"rogue","name":"致命一擊","type":"attack","cost":2,"rarity":"uncommon","desc":"造成 12 傷害；目標有毒則改為 18","ops":[{"op":"dmg","n":12,"hits":1,"cond":{"c":"poison","t":"set","v":18}}]},"rogue_40":{"id":"rogue_40","cls":"rogue","name":"連環暗殺","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 5 傷害，本回合每打出過一張 0 費牌 +3","ops":[{"op":"dmg","n":5,"hits":1,"per":{"c":"zeroPlayed","v":3}}]},"rogue_41":{"id":"rogue_41","cls":"rogue","name":"影之加持","type":"skill","cost":1,"rarity":"uncommon","desc":"本回合所有 0 費牌傷害 +3","ops":[{"op":"zeroDmgTurn","n":3}]},"rogue_42":{"id":"rogue_42","cls":"rogue","name":"刃之舞","type":"skill","cost":1,"rarity":"uncommon","desc":"將 3 張「小刀」加入手牌（0 費，造成 3 傷害，消耗）","ops":[{"op":"addCard","id":"tok_knife","n":3}]},"rogue_43":{"id":"rogue_43","cls":"rogue","name":"毒瓶","type":"skill","cost":2,"rarity":"uncommon","desc":"全體施加 5 毒","ops":[{"op":"status","s":"poison","n":5,"all":true}]},"rogue_44":{"id":"rogue_44","cls":"rogue","name":"暗殺","type":"attack","cost":0,"rarity":"uncommon","desc":"造成 8 傷害，消耗","ops":[{"op":"dmg","n":8,"hits":1}],"exhaust":true},"rogue_45":{"id":"rogue_45","cls":"rogue","name":"劇毒爆發","type":"attack","cost":2,"rarity":"uncommon","desc":"目標毒層數翻倍","ops":[{"op":"poisonDouble"}]},"rogue_46":{"id":"rogue_46","cls":"rogue","name":"煙幕","type":"skill","cost":2,"rarity":"uncommon","desc":"獲得 10 護甲，施加 2 虛弱","ops":[{"op":"block","n":10},{"op":"status","s":"weak","n":2}]},"rogue_47":{"id":"rogue_47","cls":"rogue","name":"迂迴","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 6 護甲，棄 1 張牌，抽 2 張牌","ops":[{"op":"block","n":6},{"op":"discard","n":1},{"op":"draw","n":2}]},"rogue_48":{"id":"rogue_48","cls":"rogue","name":"偷天換日","type":"skill","cost":1,"rarity":"uncommon","desc":"抽 3 張牌，棄 2 張牌","ops":[{"op":"draw","n":3},{"op":"discard","n":2}]},"rogue_49":{"id":"rogue_49","cls":"rogue","name":"毒化","type":"skill","cost":1,"rarity":"uncommon","desc":"本回合每打出一張牌，施加 1 毒","ops":[{"op":"poisonPerCardTurn","n":1}]},"rogue_50":{"id":"rogue_50","cls":"rogue","name":"反擊步伐","type":"skill","cost":1,"rarity":"uncommon","desc":"獲得 6 護甲，本回合被攻擊時回敬 2 傷害","ops":[{"op":"block","n":6},{"op":"thorns","n":2}]},"rogue_51":{"id":"rogue_51","cls":"rogue","name":"疾影","type":"skill","cost":0,"rarity":"uncommon","desc":"下一張攻擊牌費用為 0","ops":[{"op":"nextAtkFree"}]},"rogue_52":{"id":"rogue_52","cls":"rogue","name":"盜取","type":"skill","cost":1,"rarity":"uncommon","desc":"從棄牌堆選 1 張牌放回手牌","ops":[{"op":"fetch","type":"any","to":"hand"}]},"rogue_53":{"id":"rogue_53","cls":"rogue","name":"暗影毒蛇","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 4 傷害，施加 3 毒","ops":[{"op":"dmg","n":4,"hits":1},{"op":"status","s":"poison","n":3}]},"rogue_54":{"id":"rogue_54","cls":"rogue","name":"割斷","type":"attack","cost":1,"rarity":"uncommon","desc":"造成 6 傷害，施加 2 虛弱","ops":[{"op":"dmg","n":6,"hits":1},{"op":"status","s":"weak","n":2}]},"rogue_55":{"id":"rogue_55","cls":"rogue","name":"麻痺毒","type":"skill","cost":1,"rarity":"uncommon","desc":"施加 3 毒與 1 虛弱","ops":[{"op":"status","s":"poison","n":3},{"op":"status","s":"weak","n":1}]},"rogue_56":{"id":"rogue_56","cls":"rogue","name":"毒蝕","type":"power","cost":1,"rarity":"uncommon","desc":"每回合開始，對全體施加 1 毒","ops":[{"op":"pw","k":"startPoisonAll","n":1}],"power":true},"rogue_57":{"id":"rogue_57","cls":"rogue","name":"暗影步法","type":"power","cost":1,"rarity":"uncommon","desc":"每打出一張 0 費牌，獲得 1 護甲","ops":[{"op":"pw","k":"zeroBlock","n":1}],"power":true},"rogue_58":{"id":"rogue_58","cls":"rogue","name":"刺客本能","type":"power","cost":1,"rarity":"uncommon","desc":"每回合第一張攻擊牌 +5 傷害","ops":[{"op":"pw","k":"firstAtk","n":5}],"power":true},"rogue_59":{"id":"rogue_59","cls":"rogue","name":"淬毒武器","type":"power","cost":1,"rarity":"uncommon","desc":"所有攻擊牌額外施加 1 毒","ops":[{"op":"pw","k":"atkPoison","n":1}],"power":true},"rogue_60":{"id":"rogue_60","cls":"rogue","name":"暗影網絡","type":"power","cost":2,"rarity":"uncommon","desc":"每當你棄牌，獲得 1 護甲","ops":[{"op":"pw","k":"discardBlock","n":1}],"power":true},"rogue_61":{"id":"rogue_61","cls":"rogue","name":"連擊大師","type":"power","cost":2,"rarity":"uncommon","desc":"每回合打出第 3 張牌起，每張攻擊牌 +3 傷害","ops":[{"op":"pw","k":"third3Atk","n":3}],"power":true},"rogue_62":{"id":"rogue_62","cls":"rogue","name":"毒性強化","type":"power","cost":2,"rarity":"uncommon","desc":"你施加的毒層數 +1","ops":[{"op":"pw","k":"poisonBonus","n":1}],"power":true},"rogue_63":{"id":"rogue_63","cls":"rogue","name":"影之舞","type":"power","cost":1,"rarity":"uncommon","desc":"每回合第一張 0 費牌打出後，抽 1 張牌","ops":[{"op":"pw","k":"zeroDraw","n":1}],"power":true},"rogue_64":{"id":"rogue_64","cls":"rogue","name":"致命毒藥","type":"skill","cost":2,"rarity":"rare","desc":"全體施加 8 毒","ops":[{"op":"status","s":"poison","n":8,"all":true}]},"rogue_65":{"id":"rogue_65","cls":"rogue","name":"殺意","type":"attack","cost":3,"rarity":"rare","desc":"造成 28 傷害；目標有毒則改為 40","ops":[{"op":"dmg","n":28,"hits":1,"cond":{"c":"poison","t":"set","v":40}}]},"rogue_66":{"id":"rogue_66","cls":"rogue","name":"暗影風暴","type":"attack","cost":2,"rarity":"rare","desc":"對全體造成 4 傷害三次","ops":[{"op":"dmg","n":4,"hits":3,"all":true}]},"rogue_67":{"id":"rogue_67","cls":"rogue","name":"毒入骨髓","type":"attack","cost":1,"rarity":"rare","desc":"造成等同目標毒層數 ×2 的傷害","ops":[{"op":"dmg","n":0,"hits":1,"scale":{"src":"poison","k":2}}]},"rogue_68":{"id":"rogue_68","cls":"rogue","name":"刺客之夜","type":"skill","cost":2,"rarity":"rare","desc":"本回合接下來 3 張牌費用為 0，消耗","ops":[{"op":"freeCards","n":3}],"exhaust":true},"rogue_69":{"id":"rogue_69","cls":"rogue","name":"暗影斗篷","type":"skill","cost":2,"rarity":"rare","desc":"獲得 18 護甲，消耗","ops":[{"op":"block","n":18}],"exhaust":true},"rogue_70":{"id":"rogue_70","cls":"rogue","name":"刺客藥箱","type":"skill","cost":1,"rarity":"rare","desc":"將 3 張「毒針」加入手牌（0 費，施加 2 毒，消耗）","ops":[{"op":"addCard","id":"tok_needle","n":3}]},"rogue_71":{"id":"rogue_71","cls":"rogue","name":"完美佈局","type":"skill","cost":1,"rarity":"rare","desc":"抽 4 張牌，棄 3 張牌，消耗","ops":[{"op":"draw","n":4},{"op":"discard","n":3}],"exhaust":true},"rogue_72":{"id":"rogue_72","cls":"rogue","name":"毒之王","type":"power","cost":3,"rarity":"rare","desc":"每回合開始，對全體施加 3 毒","ops":[{"op":"pw","k":"startPoisonAll","n":3}],"power":true},"rogue_73":{"id":"rogue_73","cls":"rogue","name":"暗影大師","type":"power","cost":3,"rarity":"rare","desc":"所有 0 費牌傷害 +3","ops":[{"op":"pw","k":"zeroDmg","n":3}],"power":true},"rogue_74":{"id":"rogue_74","cls":"rogue","name":"致命節奏","type":"power","cost":2,"rarity":"rare","desc":"每回合打出第 5 張牌時，對全體造成 10 傷害","ops":[{"op":"pw","k":"fifthAoe","n":10}],"power":true},"rogue_75":{"id":"rogue_75","cls":"rogue","name":"傳奇盜賊","type":"power","cost":3,"rarity":"rare","desc":"每回合開始獲得 1 能量，每回合結束失去 2 HP","ops":[{"op":"pw","k":"startEnergy","n":1},{"op":"pw","k":"endLoseHp","n":2}],"power":true},"strike":{"name":"打擊","type":"attack","cost":1,"desc":"造成 6 傷害","ops":[{"op":"dmg","n":6,"hits":1}],"id":"strike","rarity":"basic","cls":"all"},"defend":{"name":"防禦","type":"skill","cost":1,"desc":"獲得 5 護甲","ops":[{"op":"block","n":5}],"id":"defend","rarity":"basic","cls":"all"},"warrior_base":{"name":"盾擊","type":"attack","cost":1,"desc":"造成 4 傷害，獲得 3 護甲","ops":[{"op":"dmg","n":4,"hits":1},{"op":"block","n":3}],"id":"warrior_base","rarity":"basic","cls":"warrior"},"mage_base":{"name":"奧術彈","type":"attack","cost":1,"desc":"造成 5 傷害，獲得 1 魔力","ops":[{"op":"dmg","n":5,"hits":1},{"op":"mana","n":1}],"id":"mage_base","rarity":"basic","cls":"mage"},"archer_base":{"name":"連射","type":"attack","cost":1,"desc":"造成 3 傷害兩次","ops":[{"op":"dmg","n":3,"hits":2}],"id":"archer_base","rarity":"basic","cls":"archer"},"rogue_base":{"name":"淬毒匕首","type":"attack","cost":1,"desc":"造成 3 傷害，施加 2 毒","ops":[{"op":"dmg","n":3,"hits":1},{"op":"status","s":"poison","n":2}],"id":"rogue_base","rarity":"basic","cls":"rogue"},"tok_arrow":{"name":"箭矢","type":"attack","cost":0,"desc":"造成 4 傷害，消耗","ops":[{"op":"dmg","n":4,"hits":1}],"exhaust":true,"id":"tok_arrow","rarity":"basic","cls":"token"},"tok_knife":{"name":"小刀","type":"attack","cost":0,"desc":"造成 3 傷害，消耗","ops":[{"op":"dmg","n":3,"hits":1}],"exhaust":true,"id":"tok_knife","rarity":"basic","cls":"token"},"tok_needle":{"name":"毒針","type":"skill","cost":0,"desc":"施加 2 毒，消耗","ops":[{"op":"status","s":"poison","n":2}],"exhaust":true,"id":"tok_needle","rarity":"basic","cls":"token"}};
+const POOLS={"warrior":["warrior_01","warrior_02","warrior_03","warrior_04","warrior_05","warrior_06","warrior_07","warrior_08","warrior_09","warrior_10","warrior_11","warrior_12","warrior_13","warrior_14","warrior_15","warrior_16","warrior_17","warrior_18","warrior_19","warrior_20","warrior_21","warrior_22","warrior_23","warrior_24","warrior_25","warrior_26","warrior_27","warrior_28","warrior_29","warrior_30","warrior_31","warrior_32","warrior_33","warrior_34","warrior_35","warrior_36","warrior_37","warrior_38","warrior_39","warrior_40","warrior_41","warrior_42","warrior_43","warrior_44","warrior_45","warrior_46","warrior_47","warrior_48","warrior_49","warrior_50","warrior_51","warrior_52","warrior_53","warrior_54","warrior_55","warrior_56","warrior_57","warrior_58","warrior_59","warrior_60","warrior_61","warrior_62","warrior_63","warrior_64","warrior_65","warrior_66","warrior_67","warrior_68","warrior_69","warrior_70","warrior_71","warrior_72","warrior_73","warrior_74","warrior_75"],"mage":["mage_01","mage_02","mage_03","mage_04","mage_05","mage_06","mage_07","mage_08","mage_09","mage_10","mage_11","mage_12","mage_13","mage_14","mage_15","mage_16","mage_17","mage_18","mage_19","mage_20","mage_21","mage_22","mage_23","mage_24","mage_25","mage_26","mage_27","mage_28","mage_29","mage_30","mage_31","mage_32","mage_33","mage_34","mage_35","mage_36","mage_37","mage_38","mage_39","mage_40","mage_41","mage_42","mage_43","mage_44","mage_45","mage_46","mage_47","mage_48","mage_49","mage_50","mage_51","mage_52","mage_53","mage_54","mage_55","mage_56","mage_57","mage_58","mage_59","mage_60","mage_61","mage_62","mage_63","mage_64","mage_65","mage_66","mage_67","mage_68","mage_69","mage_70","mage_71","mage_72","mage_73","mage_74","mage_75"],"archer":["archer_01","archer_02","archer_03","archer_04","archer_05","archer_06","archer_07","archer_08","archer_09","archer_10","archer_11","archer_12","archer_13","archer_14","archer_15","archer_16","archer_17","archer_18","archer_19","archer_20","archer_21","archer_22","archer_23","archer_24","archer_25","archer_26","archer_27","archer_28","archer_29","archer_30","archer_31","archer_32","archer_33","archer_34","archer_35","archer_36","archer_37","archer_38","archer_39","archer_40","archer_41","archer_42","archer_43","archer_44","archer_45","archer_46","archer_47","archer_48","archer_49","archer_50","archer_51","archer_52","archer_53","archer_54","archer_55","archer_56","archer_57","archer_58","archer_59","archer_60","archer_61","archer_62","archer_63","archer_64","archer_65","archer_66","archer_67","archer_68","archer_69","archer_70","archer_71","archer_72","archer_73","archer_74","archer_75"],"rogue":["rogue_01","rogue_02","rogue_03","rogue_04","rogue_05","rogue_06","rogue_07","rogue_08","rogue_09","rogue_10","rogue_11","rogue_12","rogue_13","rogue_14","rogue_15","rogue_16","rogue_17","rogue_18","rogue_19","rogue_20","rogue_21","rogue_22","rogue_23","rogue_24","rogue_25","rogue_26","rogue_27","rogue_28","rogue_29","rogue_30","rogue_31","rogue_32","rogue_33","rogue_34","rogue_35","rogue_36","rogue_37","rogue_38","rogue_39","rogue_40","rogue_41","rogue_42","rogue_43","rogue_44","rogue_45","rogue_46","rogue_47","rogue_48","rogue_49","rogue_50","rogue_51","rogue_52","rogue_53","rogue_54","rogue_55","rogue_56","rogue_57","rogue_58","rogue_59","rogue_60","rogue_61","rogue_62","rogue_63","rogue_64","rogue_65","rogue_66","rogue_67","rogue_68","rogue_69","rogue_70","rogue_71","rogue_72","rogue_73","rogue_74","rogue_75"]};
+
+/* 內建範例題（國語 200 題，來自老師提供的題庫；可在「遊戲設定」清除或取代）。格式：[題目, [選項…], 答案索引, 科目, 難度1-3, 解析] */
+const SAMPLE_RAW = [
+  ["「這款產品在市場上暢銷多年，至今仍是經典之作。」句中「銷」字的意思為何？", ["出售。", "熔化。", "耗盡、毀壞。", "去除、除去。"], 0, "國語", 2, ""],
+  ["下列詞語，何者意思與「銷售」不同？", ["收購", "出售", "販賣", "發售。"], 0, "國語", 2, ""],
+  ["「商譽」的意思為何？", ["商店的正式名稱。", "販售商品的品質。", "商人或商店行號的信譽。", "商店登記的標誌。"], 2, "國語", 2, ""],
+  ["「他穿了一件非常□□的黃色外套。」空格中應填入下列何者？", ["醒腦", "舉目", "過目", "醒目。"], 3, "國語", 2, ""],
+  ["「每當他作曲沒有□□時，就會先放下手邊的工作，到戶外走走散心。」空格中應填入下列何者？", ["靈感", "預感", "念頭", "動感。"], 0, "國語", 2, ""],
+  ["下列詞語，何者的意思與「銷售」相同？", ["出賣", "販賣", "銷毀", "推銷。"], 1, "國語", 2, ""],
+  ["「強橫無理」是下列哪一個詞中「霸」字的意思？", ["稱「霸」", "「霸」占", "惡「霸」", "獨「霸」一方"], 1, "國語", 2, ""],
+  ["「他在這間公司已經服務二十年了。」句中「服務」的意思為何？", ["經歷遍盡。", "服從命令。", "任職。", "為社會、別人做事。"], 2, "國語", 2, ""],
+  ["「遠遠便可瞧見門口招牌那幾個□□的字。」空格中應填入下列何者？", ["盛大", "壯大", "斗大", "自大。"], 2, "國語", 2, ""],
+  ["「爺爺雖然年紀大了，但身體還很硬朗，他樂於參加社區的志工□□活動。」空格中應填入下列何者？", ["服務", "任務", "法務", "勤務。"], 0, "國語", 2, ""],
+  ["「運動員不但要具備卓越的體能，更要擁有堅毅不拔的意志，才能在激烈的競賽中脫穎而出。」句中「堅毅不拔」的意思為何？", ["形容歷史非常悠久。", "形容種類非常繁多。", "形容意志堅定，不可動搖。", "形容松樹長得非常高大。"], 2, "國語", 2, ""],
+  ["下列「　」中的字，何者和「企盼」的「企」意思相同？", ["「企」業精神", "「企」圖成功", "「企」鵝走路", "「企」畫活動"], 1, "國語", 2, ""],
+  ["下列哪一組詞語的意思相近？", ["註冊／註銷", "關聯／關係", "銷售／收購", "服務／服從。"], 1, "國語", 2, ""],
+  ["「斗大」這個詞通常用來形容什麼？", ["聲音很響亮", "體積或字體非常大", "動作很迅速", "顏色很鮮豔。"], 1, "國語", 2, ""],
+  ["下列「務」字，何者意思是指「必須、一定」？", ["爸爸每天忙於處理繁重的公「務」。", "這項計畫「務」必在月底前完成。", "他從小就「務」農，對土地有深厚情感。", "學生應致力於「務」實的學習態度。"], 1, "國語", 2, ""],
+  ["下列「勝」的字義，哪一個和其他三者不同？", ["旅遊「勝」地", "得「勝」", "出奇制「勝」", "戰「勝」。"], 0, "國語", 2, ""],
+  ["「新引進的藥品要經過相關單位的□□，才能在市面上販售。」空格中不適合填入下列何者？", ["核准", "不准", "獲准", "允准。"], 1, "國語", 2, ""],
+  ["下列「項」的字義，哪一個和其他三者不同？", ["事「項」", "「項」目", "獎「項」", "頸「項」。"], 3, "國語", 2, ""],
+  ["「他歷經多年的努力，終於在動畫界成為『霸主』。」句中的「霸主」不適合替換成哪個詞語？", ["龍頭", "領袖", "盟主", "主動。"], 3, "國語", 2, ""],
+  ["關於「　」中的字，它們的字義有什麼關係？ㄅ「勝」利歸來　ㄆ優「勝」隊伍　ㄇ名「勝」古蹟　ㄈ戰「勝」對手", ["ㄅㄆㄈ相同", "ㄆㄇㄈ相同", "ㄅㄇㄈ相同", "ㄅㄆㄇ相同。"], 0, "國語", 2, ""],
+  ["下列「ˉ」中的字義，哪一組前後相同？", ["「註」銷／「註」解", "畫「冊」／「冊」封", "世「局」／「局」面", "「歷」險／學「歷」。"], 2, "國語", 2, ""],
+  ["下列「ˉ」中的字義，哪一組前後不同？", ["任「務」／「務」必", "商「譽」／名「譽」", "「聯」盟／「聯」姻", "「核」對／「核」算。"], 0, "國語", 2, ""],
+  ["下列「ˉ」中的字，哪一個字義和「智慧財產局」的「局」相同？", ["郵「局」", "騙「局」", "飯「局」", "世「局」。"], 0, "國語", 2, ""],
+  ["「這筆交易在昨天正式獲得核准。」畫線處換成下列何者，意思不變？", ["許可", "核對", "准考", "預約。"], 0, "國語", 2, ""],
+  ["「這份文件已經送到相關單位審核。」句中的「核」是什麼意思？", ["果實內保護果仁，具硬質外殼部分。", "原子的中心。", "對照、審查。", "原子核的簡稱。"], 2, "國語", 2, ""],
+  ["「在如此惡劣的環境下，他依然□□□□，努力不懈，終於成就一番事業。」空格中應填入下列何者？", ["出類拔萃", "老而彌堅", "一毛不拔", "堅毅不拔。"], 3, "國語", 2, ""],
+  ["下列選項「　」中的字義，何者前後相同？", ["關「聯」／春「聯」", "家「務」／「務」必", "稱「譽」／榮「譽」", "「註」冊／「註」銷。"], 3, "國語", 2, ""],
+  ["下列句子「ˉ」中的詞語，何者使用錯誤？", ["這家飯店有提供寄送物品的「服務」。", "爸爸在這間機關已經「服務」很多年了。", "納稅是國民應盡的「服務」。", "我覺得非常榮幸，能為大家「服務」，請多多指教。"], 2, "國語", 2, ""],
+  ["下列句子中的「服務」，哪一個意思是指「為社會、別人做事」？", ["爸爸在電力公司「服務」多年，深受長官器重。", "這些志工利用休假日到社區「服務」長者，精神令人感動。", "陳小姐在銀行「服務」，每天都要處理許多複雜的帳務。", "雖然他已在教育界「服務」滿三十年，依然對教學充滿熱誠。"], 1, "國語", 2, ""],
+  ["下列「銷」的字義，哪一個和其他三者不同？", ["「銷」售", "報「銷」", "註「銷」", "撤「銷」。"], 0, "國語", 2, ""],
+  ["「這位體壇英才憑著毅力，在國際賽場上獨霸一方，為國爭光、贏得無數榮譽。」根據句意，下列哪個字的解釋正確？", ["毅：堅定、果決。", "英：普通的、平庸的。", "霸：謙虛的、退讓的。", "譽：稱讚。"], 0, "國語", 2, ""],
+  ["下列「ˉ」中的字，哪一個字義和「商譽」的「譽」意思不同？", ["讚「譽」", "名「譽」", "信「譽」", "聲「譽」。"], 0, "國語", 2, ""],
+  ["下列選項「　」中的字義，何者錯誤？", ["「核」對：對照、審查。", "「註」冊：記載、登記。", "「企」盼：企業、公司。", "「毅」力：堅定、果決。"], 2, "國語", 2, ""],
+  ["「圖案明顯的商標，能夠讓顧客對商品留下深刻的□□。」空格中應填入下列何者？", ["印象", "現象", "抽象", "形象。"], 0, "國語", 2, ""],
+  ["「這兩件事根本沒有□□，怎能相提並論？」空格中應填入下列何者？", ["聯合", "關聯", "連續", "關頭。"], 1, "國語", 2, ""],
+  ["「皮克斯以小錫兵榮獲奧斯卡最佳動畫短片。」句中的「獲」意思為何？", ["順從、聽話。", "遭受、遭到。", "取得、得到。", "要求、索取。"], 2, "國語", 2, ""],
+  ["下列句子「ˉ」中的詞語，何者使用錯誤？", ["這碗豆花口感「細膩」，味道香醇。", "這幅畫畫風「細膩」，是展場最受矚目的作品。", "他個性體貼、心思「細膩」，總能在朋友需要時給予安慰。", "肉粽雖然好吃卻「細膩」，不可多吃。"], 3, "國語", 2, ""],
+  ["「由於他提出的意見實在很荒謬，主席當場□□□□就否決了。」空格中應填入下列何者？", ["不慌不忙", "舉世聞名", "狀況百出", "不假思索。"], 3, "國語", 2, ""],
+  ["下列句子，何者「感官」使用錯誤？", ["我們透過「感官」認識周圍的世界。", "這道料理不只美味，還能刺激多重「感官」。", "他用「感官」寫了一篇結構完整的作文。", "這場展覽透過聲音與光影，帶來豐富的「感官」體驗。"], 2, "國語", 2, ""],
+  ["「精益求精」比喻不斷努力求進步。下列哪一個詞語的意思和它相反？", ["馬馬虎虎", "五花八門", "千變萬化", "別出心裁。"], 0, "國語", 2, ""],
+  ["「這位師傅做事總是不斷努力求進步，連細節都不放過。」句中畫線的地方可以替換成哪個詞語？", ["精益求精", "精挑細選", "精打細算", "精疲力竭。"], 0, "國語", 2, ""],
+  ["「湯姆歷險記是青少年必讀的□□作品。」空格中應填入下列何者？", ["共鳴", "經典", "經驗", "字典。"], 1, "國語", 2, ""],
+  ["「這首歌曲引起畢業生『共同的情緒反應』，大家哭得很傷心。」句中『ˉ』的文字可以替換成下列何者？", ["共享", "共識", "共鳴", "贊同。"], 2, "國語", 2, ""],
+  ["下列「　」中的字，哪一個解釋錯誤？", ["細「膩」：細緻、滑潤。", "「判」斷力：分明、辨明。", "「娛」樂：快樂、歡樂。", "感「官」：國家的、政府的。"], 3, "國語", 2, ""],
+  ["下列哪一個詞語和「經典」的意思最相近？", ["平凡", "著名", "老舊", "隨便"], 1, "國語", 2, ""],
+  ["「隨著時代的變遷，動畫給了故事不同的生命樣貌。」句中的「貌」意思為何？", ["外表、外觀。", "修飾、妝扮。", "情緒、興致。", "情況、境界。"], 0, "國語", 2, ""],
+  ["「這位導演對電影的劇情安排十分細膩，因此作品更容易引起觀眾共鳴。」句中「共鳴」的意思為何？", ["共同討論。", "互相批評。", "發出哀怨傷痛的聲音。", "共同的感受或情緒反應。"], 3, "國語", 2, ""],
+  ["「學校的棒球隊□□全國聯賽冠軍，今晚將舉行盛大的慶功活動。」空格中應填入下列何者？", ["獲勝", "獲救", "收穫", "榮獲。"], 3, "國語", 2, ""],
+  ["「責」有「分內的事情、要求、處罰、詰問」的意思。下列哪一個句子中的「責」字是「分內的事情」的意思？", ["他願意負「責」這次活動的全部安排。", "老師嚴厲「責」備學生的錯誤行為。", "大家紛紛指「責」他的不當發言。", "他因犯錯而受到嚴重的譴「責」。"], 0, "國語", 2, ""],
+  ["「如果有人問你，喜歡的動畫節目或電影有哪些，相信你一定可以不假思索的回答。」句中的「不假思索」和下列哪一個詞語的意思相反？", ["毫不猶豫", "百思不解", "深思熟慮", "胡思亂想。"], 2, "國語", 2, ""],
+  ["「翠玉白菜是□□□□的玉石工藝品，也是許多人對故宮的共同記憶。」空格中應填入下列何者？", ["舉世聞名", "默默無名", "舉手之勞", "輕而易舉。"], 0, "國語", 2, ""],
+  ["「這篇文章描寫景物的手法非常細膩，是難得的好作品。」句中的「膩」意思為何？", ["厭煩。", "糾纏、黏著。", "細緻、滑潤。", "食物中油脂過多的。"], 2, "國語", 2, ""],
+  ["關於「鳴」字的字義，它們的字義有什麼關係？ㄅ.雷「鳴」　ㄆ.孤掌難「鳴」　ㄇ.鳥「鳴」　ㄈ.不平則「鳴」", ["ㄅㄆ相同", "ㄆㄇ相同", "ㄅㄈ相同", "ㄇㄈ相同"], 0, "國語", 2, ""],
+  ["「吉卜力工作室的動畫作品，以獨特的音樂風格和突破傳統動畫內容框架的手法，打造獨具一格的體驗。」句中的「獨具一格」和下列哪一個詞語的意思相近？", ["獨具慧眼", "與眾不同", "獨來獨往", "格格不入。"], 1, "國語", 2, ""],
+  ["下列哪一組詞語的關係和「細膩／精細」相同？", ["增加／減少", "負責／逃避", "團隊／群體", "樣貌／個性。"], 2, "國語", 2, ""],
+  ["「種植的條件除了空氣和水，陽光也是『必須』的。」句中的「必須」和下列哪一個詞語的意思相近？", ["不可多得", "不可磨滅", "不可限量", "不可或缺。"], 3, "國語", 2, ""],
+  ["「看書、看電影是正當的休閒□□。」空格中應填入下列何者？", ["作樂", "餘興", "娛樂", "快樂。"], 2, "國語", 2, ""],
+  ["「這道料理在色香味上全面喚醒人們的味覺與□□的享受。」空格中應填入下列何者？", ["器官", "五臟", "官方", "感官。"], 3, "國語", 2, ""],
+  ["「這幅畫將傳統技法與現代風格合而為一，展現出創新的視覺效果。」句中的「合而為一」和下列哪一個詞語的意思相近？", ["不可或缺", "不假思索", "融為一體", "獨具一格。"], 2, "國語", 2, ""],
+  ["「這座花園融合了現代和未來的風格，□□□□，吸引不少人前來參觀。」空格中應填入下列何者？", ["獨當一面", "獨具一格", "獨具慧眼", "獨善其身。"], 1, "國語", 2, ""],
+  ["「這部小說□□市井小民辛苦又無奈的生活，深深感動讀者的心。」空格中應填入下列何者？", ["刻畫", "計畫", "刻苦", "展開。"], 0, "國語", 2, ""],
+  ["下列選項中的「滋」，哪一個是「潤澤、溼潤」的意思？", ["「滋」生", "「滋」潤", "「滋」事", "「滋」擾。"], 1, "國語", 2, ""],
+  ["「他雖然富有，衣著卻很質樸實在。」句中畫線的部分可以替換成哪個詞語？", ["樸實", "節省", "踏實", "古樸。"], 0, "國語", 2, ""],
+  ["「滋潤」的意思為何？", ["多雨潮溼。", "浸潤、潤澤。", "分享利益。", "豐滿而帶有紅色的光澤。"], 1, "國語", 2, ""],
+  ["下列「　」中字的意思，哪一個不是指「責備、怪罪、痛恨」？", ["任勞任「怨」", "「怨」天尤人", "自「怨」自艾", "以德報「怨」。"], 3, "國語", 2, ""],
+  ["「尊嚴」的意思是什麼？", ["不容侵犯的身分或地位。", "尊崇、敬重。", "尊重自己，不使別人看輕。", "遵守一定的標準，絕不寬容。"], 0, "國語", 2, ""],
+  ["「哥哥為人□□，經常跟大家分享自己帶來的餅乾。」空格中應填入下列何者？", ["感慨", "慷慨", "節儉", "吝嗇。"], 1, "國語", 2, ""],
+  ["下列「勞」的字義，哪一個和其他不同？", ["勤「勞」", "操「勞」", "不「勞」而獲", "「勞」資關係。"], 3, "國語", 2, ""],
+  ["「早餐是整天活力的□□，千萬不可不吃。」空格中應填入哪個詞語？", ["來源", "淵源", "能源", "資源。"], 0, "國語", 2, ""],
+  ["下列「　」中字的意思，哪一個錯誤？", ["「澄」淨：水靜止而清澈。", "「恆」心：長久的、不變的。", "「慨」嘆：大方、不吝嗇。", "「滋」養：潤澤、溼潤。"], 2, "國語", 2, ""],
+  ["下列「滋」的字義，哪一個和其他三者不同？", ["「滋」事", "「滋」養", "「滋」補", "「滋」潤。"], 0, "國語", 2, ""],
+  ["「他長期為鄰里的弱勢家庭服務，任勞任怨，令人十分敬佩。」句中「任勞任怨」的意思為何？", ["埋怨上天，怪罪他人。", "形容人做事熱心負責，不辭勞苦、不怕嫌怨。", "形容群眾普遍怨恨、不滿。", "白白浪費精力而沒有任何效益。"], 1, "國語", 2, ""],
+  ["下列「嚴」的字義，哪一個和其他三者不同？", ["「嚴」格", "「嚴」厲", "「嚴」禁", "莊「嚴」。"], 3, "國語", 2, ""],
+  ["下列「　」中的字，何者前後意思相同？", ["衣著樸「素」／「素」食主義", "「尊」師重道／地位「尊」貴", "「養」育之恩／「養」家活口", "任勞任「怨」／「怨」聲載道。"], 2, "國語", 2, ""],
+  ["「為人慷慨」的「慷慨」意思為何？", ["小氣、不大方。", "大方、不吝嗇。", "難過而發出嘆息。", "後悔而發出感慨。"], 1, "國語", 2, ""],
+  ["下列詞語的意思，哪一個正確？", ["恆久：經常。", "滋潤：圓滿豐潤。", "慷慨：有所感觸而發出慨嘆。", "樸實：質樸實在。"], 3, "國語", 2, ""],
+  ["下列選項中的「源」，哪一個是「根本、由來」的意思？", ["淵「源」", "飲水思「源」", "水「源」", "泉「源」。"], 0, "國語", 2, ""],
+  ["「這幾天搬家讓我全身□□□□，真想請人幫我按摩。」空格中應填入下列何者？", ["虎背熊腰", "彎腰駝背", "腰痠背痛", "腹背受敵。"], 2, "國語", 2, ""],
+  ["下列句子「ˉ」中的詞語，何者使用錯誤？", ["汽車排放的廢氣是空氣汙染的「來源」之一。", "他利用假日打工，增加收入的「來源」。", "最近「來源」不足，我們要節約用水。", "廚師烹調的靈感「來源」是當季新鮮的食材。"], 2, "國語", 2, ""],
+  ["下列哪一組詞語的意思相近？", ["恆久／短暫", "慷慨／吝嗇", "撿拾／拾取", "尊嚴／卑微。"], 2, "國語", 2, ""],
+  ["「湖水澄清見底，可以看見水中的魚兒游來游去。」句中「澄」的意思為何？", ["水靜止而清澈。", "顏色鮮豔。", "樸質無華、清淡的。", "水流的出處。"], 0, "國語", 2, ""],
+  ["下列句子中的「嚴」，哪一個是「肅穆、端莊」的意思？", ["老師的教導非常「嚴」格。", "爸爸一臉「嚴」肅的看著我。", "在「嚴」冬中出門要注意保暖。", "這次的水災災情「嚴」重。"], 1, "國語", 2, ""],
+  ["下列哪一個詞語的意思是「形容人做事熱心負責，不辭勞苦、不怕嫌怨」？", ["舉手之勞", "一勞永逸", "任勞任怨", "怨天尤人。"], 2, "國語", 2, ""],
+  ["「這一大片□□□的向日葵花海，好像一個個小太陽在對著天空微笑，真是壯觀。」空格中應填入下列何者？", ["白茫茫", "黃澄澄", "綠油油", "黑漆漆。"], 1, "國語", 2, ""],
+  ["下列句子「ˉ」中的詞語，何者運用錯誤？", ["爸爸看起來總是精神「飽滿」，容光煥發。", "這些葉子因為缺少水分而漸漸「乾枯」。", "我們要「尊嚴」他人的隱私權。", "他的個性「堅強」，從不輕易屈服。"], 2, "國語", 2, ""],
+  ["下列哪一組詞語的關係和「豐收／歉收」不同？", ["滋潤／潤澤", "樸素／華麗", "恆久／短暫", "慷慨／小氣。"], 0, "國語", 2, ""],
+  ["下列句子「　」中的詞語，何者使用恰當？", ["這裡「恆久」下雨，終年少見陽光。", "這片草原在雨水的「滋潤」下，看起來更翠綠了。", "爸爸每天辛勤的工作，就是為了「尊嚴」一家人。", "冬天來臨時，樹上的葉子會漸漸「飽滿」而掉落。"], 1, "國語", 2, ""],
+  ["「為了贍養、撫養一家人，他每天辛勤工作，從不喊累。」句中畫線的部分可以替換成哪個詞語？", ["營養", "養活", "教養", "飼養。"], 1, "國語", 2, ""],
+  ["「尊嚴」的意思為何？", ["地位高人一等。", "尊崇、敬重。", "高尚、穩重。", "不容侵犯的身分或地位。"], 3, "國語", 2, ""],
+  ["「他為了維持家庭生計，總是□□□□的付出，從來不喊苦。」空格中應填入下列何者？", ["任勞任怨", "好逸惡勞", "舉手之勞", "以德報怨。"], 0, "國語", 2, ""],
+  ["下列詞語，何者的意思與「樸實」相反？", ["簡樸", "樸素", "質樸", "奢華。"], 3, "國語", 2, ""],
+  ["「這個木雕擺飾造型古樸，極具藝術價值。」句中「樸」的意思為何？", ["質地堅硬。", "事物的根本特性。", "純厚，質實未加修飾。", "長久、長遠。"], 2, "國語", 2, ""],
+  ["下列「養」的字義，哪個選項正確？(甲)「養」育、(乙)修「養」品德、(丙)撫「養」、(丁)保「養」", ["甲乙相同", "甲丙相同", "丙丁相同", "甲丁相同。"], 1, "國語", 2, ""],
+  ["下列句子中的「慷慨」，哪一個意思和其他不同？", ["地震災情慘重，他「慷慨」解囊，捐出大筆金錢幫助災民。", "他在會場上的演說「慷慨」激昂，深深打動在場聽眾。", "雖然他的收入不高，但對家人總是十分「慷慨」。", "公司獲利大幅成長，老闆「慷慨」的發放獎金，員工們都十分開心。"], 1, "國語", 2, ""],
+  ["下列「　」中的字，哪一個字義錯誤？", ["「汙」染：弄髒。", "貪官「汙」吏：骯髒、不潔的東西。", "藏「汙」納垢：骯髒、不潔的東西。", "「汙」點：不清潔的。"], 1, "國語", 2, ""],
+  ["下列句子中的「斷」，哪一個是「隔絕、不延續」的意思？", ["醫師仔細的為病人診「斷」病情。", "登山隊員判「斷」天氣後，決定繼續前進。", "這間公司違規營業，遭到「斷」水、斷電的處分。", "他決定「斷」絕和這群不良分子的來往。"], 3, "國語", 2, ""],
+  ["「似乎」的意思為何？", ["勝過。", "好像。", "呼喊。", "在意。"], 1, "國語", 2, ""],
+  ["下列詞語中的「斷」，哪一個不是「隔絕、不延續」的意思？", ["中「斷」", "「斷」絕", "判「斷」", "阻「斷」。"], 2, "國語", 2, ""],
+  ["下列哪一組詞語前後意思相反？", ["降低／提高", "山巒／縱谷", "拍攝／記錄", "不斷／一直。"], 0, "國語", 2, ""],
+  ["下列句子中的「降低」，哪一個運用正確？", ["凱瑟琳四處演講，希望能「降低」蚊帳募集的數量。", "飛機在天上盤旋了幾圈後，安全的「降低」在跑道上。", "透過完善的排水設施，可以有效「降低」汙水對河川生態的影響。", "他的表現優異，「降低」了老師對他的評價。"], 2, "國語", 2, ""],
+  ["「市中心商店林立，招牌五顏六色，非常熱鬧。」句中「林立」的意思為何？", ["樹林長得非常高大、茂盛。", "像林木般密集的聳立著。比喻眾多。", "建築物的結構穩固，像地基一樣。", "建立、設立。"], 1, "國語", 2, ""],
+  ["「他望著遠方起伏的山巒，內心湧起一股難以言喻的哀愁。」句中「哀愁」的意思為何？", ["離別的傷感。", "哀傷悲愁。", "內心十分悲痛。", "集中精神，專心一意。"], 1, "國語", 2, ""],
+  ["「這件懸案神祕離奇，□□有一隻看不見的黑手在幕後操縱。」空格中不能填入下列何者？", ["似乎", "在乎", "彷彿", "好像。"], 1, "國語", 2, ""],
+  ["下列詞語「哀」的字義，下列選項何者正確？(甲)「哀」傷、(乙)默「哀」、(丙)「哀」愁、(丁)悲「哀」", ["甲乙丙「哀」字義相同", "乙丙丁「哀」字義相同", "甲丙丁「哀」字義相同", "甲乙丙丁「哀」字義皆相同。"], 2, "國語", 2, ""],
+  ["「光陰總是□□□□的從我們身邊溜走，因此我們要好好把握時間。」空格中應填入下列何者？", ["無法無天", "無依無靠", "無聲無息", "無拘無束。"], 2, "國語", 2, ""],
+  ["下列句子中的「林立」，哪一個運用錯誤？", ["港口內桅杆「林立」，一眼望不見盡頭。", "校園裡這棵「林立」的大榕樹，是大家乘涼的好地方。", "現代都市高樓「林立」，往往缺乏自然綠意。", "此地各式商店「林立」，已發展成為商業區。"], 1, "國語", 2, ""],
+  ["「他這幾天看起來心事重重，似乎遇到了什麼困難。」句中的「似乎」不能替換成哪個詞語？", ["好像", "彷彿", "宛如", "幾乎。"], 3, "國語", 2, ""],
+  ["下列句子中的「不斷」，哪一個不是「持續不停」的意思？", ["這場表演相當有趣，臺下聽眾笑聲「不斷」。", "為了讓非洲小孩有蚊帳，凱瑟琳「不斷」到各地演講，四處募捐。", "這條繩子質地堅韌，不論怎麼用力拉扯都拉「不斷」。", "教室裡「不斷」傳來掌聲，慶祝他獲得獎狀。"], 2, "國語", 2, ""],
+  ["「每個孩子都需要父母細心的□□，才能平安快樂的長大。」空格中應填入下列何者？", ["呵護", "防護", "維護", "監護。"], 0, "國語", 2, ""],
+  ["「這個小孩孤苦無依，缺乏親情的溫暖，我們應該□□他。」空格中應填入下列何者？", ["對待", "善待", "期待", "善後。"], 1, "國語", 2, ""],
+  ["「這位農夫□□水稻已有數十年的經驗，種出來的稻米香甜可口。」空格中不能填入下列何者？", ["種植", "栽種", "扶植", "栽植。"], 2, "國語", 2, ""],
+  ["下列句子，何者「拍攝」一詞使用錯誤？", ["導演從空中「拍攝」臺灣的各個角落。", "模特兒正在「拍攝」廣告的影片。", "我們將運動會的熱鬧場景「拍攝」在圖畫紙上。", "美食專家把品嘗美食的過程「拍攝」成有趣的影片。"], 2, "國語", 2, ""],
+  ["「時間總是無聲無息的從我們身邊溜走，因此我們要好好把握。」句中「無聲無息」可以用下列哪個詞語替換？", ["悄無聲息", "沒消沒息", "生生不息", "川流不息。"], 0, "國語", 2, ""],
+  ["「做事情要□□□□，用心把每個步驟完成，千萬不要想偷懶而投機取巧。」空格中應填入下列何者？", ["腳踏實地", "七手八腳", "好高騖遠", "不切實際。"], 0, "國語", 2, ""],
+  ["「聽到奶奶病情嚴重的消息，家人都感到十分□□，只能期盼奇蹟早日出現。」空格中不能填入下列何者？", ["哀愁", "哀求", "哀傷", "悲傷。"], 1, "國語", 2, ""],
+  ["下列「殘」的字義，哪一個和其他三者不同？", ["「殘」忍", "「殘」缺", "「殘」破", "斷簡「殘」篇。"], 0, "國語", 2, ""],
+  ["「這個家族世代相傳，祖先一直期望□□□□能夠幸福安康。」空格中應填入下列何者？", ["多子多孫", "子子孫孫", "家家戶戶", "各行各業。"], 1, "國語", 2, ""],
+  ["「山巒」的意思為何？", ["高聳的山。", "連綿的山。", "兩座山中間凹下去的地方。", "山的最高點。"], 1, "國語", 2, ""],
+  ["「縱谷」的意思為何？", ["連綿不斷的山脈。", "與山脈的軸線垂直的河谷。", "兩座山中間凹下去的地方。", "與山脈的軸線平行的河谷。"], 3, "國語", 2, ""],
+  ["下列哪一組不是意思相反的詞語？", ["抽取／抽空", "昂貴／便宜", "殘破／完整", "哀愁／歡樂。"], 0, "國語", 2, ""],
+  ["下列哪一個詞語的意思是形容「沉寂沒有聲音」？", ["忍氣吞聲", "唉聲嘆氣", "有聲有色", "無聲無息。"], 3, "國語", 2, ""],
+  ["下列詞語，哪一個意思和「似乎」相似？", ["在乎", "猶豫", "如果", "彷彿。"], 3, "國語", 2, ""],
+  ["下列「　」中的字，哪一組的字義兩兩不同？", ["下「降」／「降」雨", "記「錄」／登「錄」", "「汙」水／「汙」泥", "「殘」破／「殘」暴。"], 3, "國語", 2, ""],
+  ["「天災人禍接踵而來，導致這個國家動盪不安。」句中「人禍」的意思為何？", ["天然發生的災害。", "人為的災禍。", "令人討厭的人。", "意外發生的幸運。"], 1, "國語", 2, ""],
+  ["「哥哥的夢想之所以能成真，是因為他腳踏實，付諸行動。」句中的「腳踏實地」不能替換成哪個詞語？", ["實事求是", "循序漸進", "好高騖遠", "按部就班。"], 2, "國語", 2, ""],
+  ["下列「斷」的字義，哪一個和其他不同？ˉ", ["中「斷」", "「斷」了音訊", "恩「斷」義絕", "當機立「斷」。"], 3, "國語", 2, ""],
+  ["「這次全班的考試成績不理想，老師一番□□的話語，讓我們體會到認真學習的重要性。」空格中應填入下列何者？", ["自勵", "鼓勵", "鼓動", "鼓掌。"], 1, "國語", 2, ""],
+  ["下列句子中的「收藏」，何者使用錯誤？", ["爺爺平時最喜歡「收藏」各國的紀念幣。", "這本畫冊是他多年來的「收藏」精華。", "警方出動大批警力圍捕「收藏」在山裡的逃犯。", "博物館裡「收藏」了許多珍貴的歷史文物。"], 2, "國語", 2, ""],
+  ["下列「ˉ」中的字義，哪一個說明正確？", ["收「藏」：勸勉、鼓勵。", "「赴」宴：前往、投向、奔向。", "「獎」勵：把東西送給他人。", "捐「贈」：保留、留下。"], 1, "國語", 2, ""],
+  ["「為了避免造成你的誤會，我一定要把心裡的話說個明白。」句中的「明白」意思為何？", ["理由、藉口。", "了解、知道。", "清楚、明確。", "聰明、不糊塗。"], 2, "國語", 2, ""],
+  ["根據蚊帳大使一文，下列何者最能說明凱瑟琳「擁夢飛翔」的成功關鍵？", ["她的運氣很好。", "她從小就很會存錢。", "她認識網路名人和富豪。", "她透過持續的努力實踐目標。"], 3, "國語", 2, ""],
+  ["「教練看見訓練的選手能晉級參加奪冠的總決賽，內心□□□□。」空格中應填入下列何者？", ["皆大歡喜", "喜不自禁", "喜怒無常", "喜新厭舊。"], 1, "國語", 2, ""],
+  ["「面對實力強勁的敵隊，每個隊員都□□□□，奮戰到最後一刻。」空格中應填入下列何者？", ["美夢成真", "一筆一畫", "喜不自禁", "全力以赴。"], 3, "國語", 2, ""],
+  ["「學校正在募集物資，準備送給偏鄉的小朋友。」句中「募集」的意思為何？", ["收集保藏。", "招募聚集。", "命令指揮。", "躲避隱藏。"], 1, "國語", 2, ""],
+  ["「這間麵包店的麵包既健康又美味，門口還張貼一張比賽優勝的□□，顧客總是大排長龍。」空格中應填入下列何者？", ["獎品", "得獎", "獎狀", "領獎。"], 2, "國語", 2, ""],
+  ["「學校圖書館提供各種類型的□□，讓我們自由翻閱。」空格中應填入下列何者？", ["標誌", "日誌", "雜誌", "號誌。"], 2, "國語", 2, ""],
+  ["下列句子中的「喜不自禁」，何者使用錯誤？", ["拿到夢寐以求的禮物，他「喜不自禁」的向爸爸道謝。", "看到剛出生的小貓，小朋友都「喜不自禁」的發出讚嘆。", "姐姐看著金榜題名的榜單，「喜不自禁」的與家人分享好消息。", "面對這場突如其來的意外，他感到「喜不自禁」，手足無措。"], 3, "國語", 2, ""],
+  ["「學校志工將□□的二手衣物整理乾淨，再寄到非洲給當地的居民。」空格中應填入下列何者？", ["設計", "宣布", "募集", "捐款。"], 2, "國語", 2, ""],
+  ["下列「死」字的字義，哪一個和其他不同？", ["「死」亡", "「死」去", "「死」腦筋", "「死」於非命。"], 2, "國語", 2, ""],
+  ["下列選項「　」中的字義，何者前後相同？", ["記「帳」／「帳」篷", "「死」亡／「死」背", "「叮」咬／「叮」嚀", "收「藏」／儲「藏」。"], 3, "國語", 2, ""],
+  ["「贈禮給他人」一詞中的「贈」，可以用下列哪個字替換？", ["收", "借", "送", "還。"], 2, "國語", 2, ""],
+  ["下列選項「疾」中的字義，何者前後相同？", ["瘧「疾」／「疾」病", "「疾」馳／「疾」苦", "積勞成「疾」／「疾」風知勁草", "殘「疾」／大聲「疾」呼。"], 0, "國語", 2, ""],
+  ["「一隻蟑螂突然從客廳的角落爬出來，嚇得我□□□□。」空格中應填入下列何者？", ["從容不迫", "驚慌失措", "不慌不忙", "悠然自得。"], 1, "國語", 2, ""],
+  ["「老師請我們拿出小時候的玩具和衣服，□□給孤兒院的小朋友，大家紛紛響應。」空格中應填入下列何者？", ["付出", "改變", "幫助", "捐贈。"], 3, "國語", 2, ""],
+  ["「雜誌」的「誌」字義為何？", ["標識、記號。", "表示、表達。", "一種記事的文體。", "記錄、記載。"], 2, "國語", 2, ""],
+  ["「他決定□□自己珍貴的古董，並將所得全數捐給無家可歸的地震災民。」空格中應填入下列何者？", ["出賣", "義賣", "盜賣", "變賣。"], 1, "國語", 2, ""],
+  ["下列「帳」的字義，哪一個和其他三者不同？", ["蚊「帳」", "「帳」篷", "記「帳」", "營「帳」。"], 2, "國語", 2, ""],
+  ["「許多善心人士集資『捐贈』救護車給村民使用，村長特地頒發感謝狀表揚。」句中「捐贈」和下列何者的意思相似？", ["捐獻", "稅捐", "贈品", "附贈。"], 0, "國語", 2, ""],
+  ["下列選項「　」中的字義，何者錯誤？", ["「存」錢：寄放、儲蓄。", "「寄」信：傳達言語、書信、心意等。今多指透過郵遞傳送。", "「獎」狀：把東西送給他人。", "「募」款：廣求、召集。"], 2, "國語", 2, ""],
+  ["下列哪組詞語的關係和「喜不自禁／欣喜若狂」相同？", ["聚精會神／聚沙成塔", "夢想成真／大夢初醒", "驚慌失措／六神無主", "全力以赴／半途而廢。"], 2, "國語", 2, ""],
+  ["故事「動」起來一文中，下列何者不是作者認為動畫融合的技術之一？", ["繪畫", "音樂", "數學", "文學。"], 2, "國語", 2, ""],
+  ["故事「動」起來一文中，下列何者是汽船威利號的主角？", ["皮諾丘", "愛麗絲", "米老鼠", "唐老鴨。"], 2, "國語", 2, ""],
+  ["故事「動」起來一文中，作者介紹不同動畫工作室時，同時放入了經典動畫的圖片，這種做法對讀者有何幫助？", ["幫助讀者深化對動畫內容的共鳴。", "讓讀者知道這些電影的門票價格。", "為了占據版面空間，減少文字數量。", "讓讀者可以自己練習畫出一樣的角色。"], 0, "國語", 2, ""],
+  ["故事「動」起來一文中，華特．迪士尼公司在一九二八年發行的哪一部動畫中，首次出現了聲音與畫面同步的表現？", ["汽船威利號", "白雪公主", "小木偶", "夢遊仙境。"], 0, "國語", 2, ""],
+  ["故事「動」起來一文中，使用了「時間軸」圖表，最主要的目的是什麼？", ["讓版面看起來更漂亮、豐富。", "讓讀者更容易看出動畫技術的改變與進展。", "將各國動畫作品的創作動機與出生背景進行對照。", "詳細記錄歷年各大動畫工作室榮獲奧斯卡獎項的具體時間點。"], 1, "國語", 2, ""],
+  ["故事「動」起來一文，提到吉卜力動畫的劇情與何者融為一體，因此能讓觀眾投入其中？", ["旁白", "舞蹈", "配樂", "主角。"], 2, "國語", 2, ""],
+  ["根據故事「動」起來一文，動畫發展的順序為何？", ["彩色無聲→黑白有聲→３Ｄ有聲動畫", "黑白有聲→彩色有聲→３Ｄ電腦動畫", "３Ｄ電腦動畫→黑白無聲→彩色有聲", "３Ｄ電腦動畫→彩色有聲→黑白無聲"], 1, "國語", 2, ""],
+  ["這篇文章的標題為「故事『動』起來」，何者是讓故事「動」起來的關鍵因素？", ["豐富的文學創作。", "精采的配音效果。", "觀眾的想像力與金錢支持。", "融合繪畫、音樂、文學與不斷演進的技術。"], 3, "國語", 2, ""],
+  ["根據故事「動」起來一文，下列何者是迪士尼動畫的創舉表現？", ["最早讓氣味與畫面同步出現。", "最早讓聲音與畫面同步出現。", "首次在動畫中讓主角有動作。", "首次在動畫中以老鼠為主角。"], 1, "國語", 2, ""],
+  ["根據故事「動」起來一文，關於皮克斯動畫的敘述，下列何者正確？", ["皮克斯只重視高科技的拍攝手法。", "皮克斯的動畫作品只有短片。", "皮克斯只拍攝製作成本低的作品。", "皮克斯的動畫開啟了３Ｄ動畫的新里程。"], 3, "國語", 2, ""],
+  ["故事「動」起來一文中，迪士尼在一九三七年推出的白雪公主，在動畫史上具有什麼樣的地位？", ["第一部黑白動畫", "第一部３Ｄ動畫", "彩色動畫長片的開端", "第一部有聲動畫。"], 2, "國語", 2, ""],
+  ["故事「動」起來一文中，作者認為玩具總動員在藝術層面上有什麼突破？", ["使用電腦程式配音。", "全片運用了精細的手工繪製。", "第一部改編自經典的動畫片。", "對角色設計、場景設定及光影色彩的運用非常細膩入微。"], 3, "國語", 2, ""],
+  ["故事「動」起來一文中，作者提到動畫吸引人的原因不包含下列何者？", ["故事情節感人。", "製作成本昂貴。", "為觀眾心靈注入新的活水。", "為觀眾的感官帶來享受。"], 1, "國語", 2, ""],
+  ["恆久的美一文中，大地主對路得說：「要是你口渴了，那麼他們會給你水喝。」這句話反映出地主對路得的態度為何？", ["輕視、嘲諷", "憐憫、關照", "懷疑、監視", "厭惡、排斥。"], 1, "國語", 2, ""],
+  ["恆久的美一文中，提到拾穗這幅畫的內容是什麼？", ["三名婦人在田園收割稻子。", "夕陽西下的美景。", "三名農民在田裡工作。", "三名婦人在撿拾麥穗。"], 3, "國語", 2, ""],
+  ["恆久的美一文引用聖經的話，主要在說明什麼？", ["說明工作時應細心收割，不要遺落麥穗。", "解釋「拾穗」行為背後樂於分享的精神。", "抱怨麥田產量不足，導致民不聊生。", "提醒人們要學習尊重各行各業的人。"], 1, "國語", 2, ""],
+  ["關於拾穗這幅畫作，下列敘述何者錯誤？", ["這幅畫是米勒的作品。", "畫中三個婦人彎腰在收割麥穗。", "三個婦人展現生命的尊嚴。", "運用樸素的筆法，描繪出人物與土地的緊密連結。"], 1, "國語", 2, ""],
+  ["關於恆久的美一文，下列敘述何者錯誤?", ["作者在文章一開始便用親身的經歷引發話題。", "文章詳細介紹米勒的生平。", "作者詳細介紹拾穗這幅畫作中人物的穿著和動作。", "這篇文章表達了生命的價值與美的感動。"], 1, "國語", 2, ""],
+  ["恆久的美一文中，作者因為什麼事情而想到路得的故事？", ["在鄉下看到農夫收割稻米。", "到美術館欣賞米勒的畫作。", "坐火車經過稻田看到飽滿的稻穗。", "在鄉間小路散步。"], 2, "國語", 2, ""],
+  ["恆久的美一文中，下列何者不是　拾穗這幅畫所傳達出的美？", ["土地的寬闊深遠", "在困苦生活中堅強存活的意志", "慷慨分享生活物質的高貴情操", "農民豐收的喜悅。"], 3, "國語", 2, ""],
+  ["恆久的美一文中，地主為什麼會讓路得在他的田裡拾穗，而且還給她水喝？", ["地主覺得路得的生活很艱苦。", "路得的母親拜託他的。", "地主想展現自己的慷慨大方。", "地主想贏得大家的敬重。"], 0, "國語", 2, ""],
+  ["恆久的美一文中，提到「富有的人哪！在收割麥田之後，不要帶走掉在地上的麥穗，請留給更窮的人去撿。」這句話是在說明什麼的重要性？", ["分享", "環保", "節儉", "勤奮。"], 0, "國語", 2, ""],
+  ["根據恆久的美一文，米勒的拾穗畫作沒有展現出下列何者？", ["描繪人物與土地的緊密連結。", "體現人們樂於分享及任勞任怨的生活態度。", "三名拾穗的婦人展現出生命的尊嚴。", "展現人們互助合作的愉快氛圍。"], 3, "國語", 2, ""],
+  ["恆久的美一文中，地主說：「我的僕人在哪塊田收割，你就跟在他們後面拾穗。要是你口渴了，那麼他們會給你水喝。」由這段話可知，地主是一個什麼樣的人？", ["好管閒事、處處小心", "個性樸實、意志頑強", "樂於分享、心地善良", "任勞任怨、認真負責。"], 2, "國語", 2, ""],
+  ["恆久的美一文中，描述第一個婦人「左手壓著腰背後部」，這個動作代表什麼意思？", ["她正在向遠方的人打招呼。", "她在尋找掉落在地上的麥穗。", "重複撿拾的動作使她腰痠背痛。", "她在整理身上的衣服。"], 2, "國語", 2, ""],
+  ["恆久的美一文中，提到拾穗這幅畫能滋潤人們日漸乾枯的心靈，作者為什麼這樣寫？", ["觀賞這幅畫可以讓人體會大自然的奧妙。", "鼓勵讀者走進展覽館欣賞藝術作品。", "強調藝術可以為現代人帶來慰藉。", "批評現代人的生活太過物質化。"], 2, "國語", 2, ""],
+  ["恆久的美一文中，為什麼當其他畫家都在畫美景時，米勒卻在刻畫農民的生活？", ["米勒不喜歡欣賞美景。", "米勒曾在田間工作，對土地有特殊的感情。", "當時以農民為主題的畫作較受歡迎。", "米勒想將農村生活呈現給貴族欣賞。"], 1, "國語", 2, ""],
+  ["恆久的美一文中，提到下列何者是米勒的拾穗所展現出的生活態度？", ["飲水思源", "自給自足", "任勞任怨", "自得其樂。"], 2, "國語", 2, ""],
+  ["恆久的美一文中，路得來到外地的農田拾穗，原因是什麼？", ["為了研究農業技術", "為了養活婆婆", "為了觀察藝術家的創作", "為了打發空閒時間。"], 1, "國語", 2, ""],
+  ["下列何者不是　恆久的美一文的寫作特色？", ["從稻田及古老的故事引發主題。", "引用聖經的內容說明創作拾穗的理念。", "運用視覺摹寫描繪三名婦人的穿著及動作。", "對米勒的生平有詳細的介紹。"], 3, "國語", 2, ""],
+  ["恆久的美一文中，作者提到米勒生長在法國鄉下的農家，這對他的藝術創作產生什麼影響？", ["讓他決定留在城市中畫畫。", "讓他成為一名成功的地主。", "讓他的畫作色彩非常鮮豔。", "讓他創作出樸實且貼近農民的作品。"], 3, "國語", 2, ""],
+  ["恆久的美一文中，使用「慷慨」、「尊嚴」、「樸素」等詞語形容這幅畫，反映出下列何者？", ["作者極度推崇這幅畫並深受感動。", "作者對米勒的繪畫技巧有深入研究。", "作者十分嚮往農村純樸的生活。", "作者藉由畫作批判地主對農民的壓迫。"], 0, "國語", 2, ""],
+  ["恆久的美一文中，作者用聖經的內容說明拾穗畫作的理念，這種寫作手法有什麼效果？", ["強化文章的說服力", "鼓勵讀者要多閱讀", "宣揚教義", "讓文章讀起來更有節奏感。"], 0, "國語", 2, ""],
+  ["從空中看臺灣一文中，下列何者不是「腳踏實地愛臺灣」這句話所表達的含義？", ["這塊土地是我們及後代子孫的家園。", "我們要腳踏實地的愛惜土地。", "我們要ㄧ起為家園的美好努力。", "要實地造訪臺灣的每個鄉鎮才是真正愛臺灣。"], 3, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者最希望大家做的事是什麼？", ["把家園變得更美好。", "多搭飛機拓展視野。", "多看電影支持國片。", "多拍照片記錄家鄉。"], 0, "國語", 2, ""],
+  ["從空中看臺灣一文中，提到河流被汙水染黑，像得了難治的病。意思是指什麼？", ["河流流速變慢。", "河流水位下降。", "河裡的生物瀕臨絕種。", "環境汙染問題很嚴重。"], 3, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者提到臺灣的人禍不包括下列何者？", ["山坡地種植檳榔樹。", "熱帶雨林被大量砍伐。", "河川被汙水染黑。", "超抽地下水使地層下陷。"], 1, "國語", 2, ""],
+  ["關於從空中看臺灣一文，下列敘述何者正確?", ["作者對臺灣的未來感到悲觀。", "作者認為影響臺灣生態最嚴重的是天災。", "作者藉由衛星技術，完成這部紀錄片。", "作者希望大家一起為家園的美好而努力。"], 3, "國語", 2, ""],
+  ["從空中看臺灣一文中，西部海岸地層不斷下陷的主要原因是什麼？", ["海平面上升", "種植檳榔樹", "超抽地下水", "地震頻繁。"], 2, "國語", 2, ""],
+  ["下列何者不是　從空中看臺灣一文的寫作特色？", ["用第三人稱敘述。", "引用名人的話。", "善用摹寫修辭。", "舉例說明驗證。"], 0, "國語", 2, ""],
+  ["從空中看臺灣一文中，臺灣西部海岸出現什麼現象？", ["海港泥沙淤積", "地層下陷", "海岸線消失", "森林增加。"], 1, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者為什麼形容從空中看到的車子像「甲蟲」？", ["車子的顏色很鮮豔。", "車子的外形長得像昆蟲。", "從高空俯瞰，車子顯得非常小。", "城市的街道像森林一樣。"], 2, "國語", 2, ""],
+  ["從空中看臺灣一文中，提到種植檳榔樹的原因是什麼？", ["美化山林", "水土保持", "製造水泥", "賺取經濟收入。"], 3, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者沒有提到臺灣的哪一項自然景觀？", ["山巒", "縱谷", "冰河", "海洋。"], 2, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者由於常在空中拍攝臺灣，而漸漸在心中產生什麼夢想？", ["為臺灣拍一部空拍影片。", "記錄全球暖化對臺灣的影響。", "拍攝臺灣人辛勤工作的影片。", "拍一部記錄臺灣風俗民情的戲劇。"], 0, "國語", 2, ""],
+  ["從空中看臺灣一文中，提到下列何者「像臍帶連接土地和海洋」？", ["山巒", "河流", "沙灘", "縱谷。"], 1, "國語", 2, ""],
+  ["從空中看臺灣一文中，作者決定提前辭職空拍影片，下列何者不是他這麼做的理由？", ["他拿到了一大筆退休金。", "他覺得體力和眼力已不如從前。", "莫拉克颱風所造成的變化。", "他認為等到退休後再做太晚了。"], 0, "國語", 2, ""],
+  ["從空中看臺灣一文中，齊柏林為什麼把自己的高空拍攝計畫形容為「昂貴而困難」？", ["他想要炫耀自己的財力與拍攝技巧。", "他需要購買最新型的直升機。", "拍攝需要耗費許多人力與經費成本。", "他想藉此提高影片的票價。"], 2, "國語", 2, ""],
+  ["從空中看臺灣一文中，促使齊柏林趕緊記錄臺灣土地變化的關鍵自然災害是什麼？", ["九二一大地震", "莫拉克颱風", "納莉颱風", "賀伯颱風。"], 1, "國語", 2, ""],
+  ["從空中看臺灣一文中，齊柏林從事空中拍攝的心路歷程為何？", ["從記錄臺灣各地景色，轉變為專門拍攝觀光景點。", "從單純欣賞土地的美麗，轉變為對環境的擔憂與守護使命。", "從原本關心天災帶來的災害，轉變為在意經濟發展對土地造成的影響。", "從對原本工作感到倦怠，轉變為想透過拍影片賺錢。"], 1, "國語", 2, ""]
+];
+const SAMPLE_BANK = SAMPLE_RAW.map((r, i) => ({ id: 's' + (i + 1), q: r[0], opts: r[1], ans: r[2], subject: r[3], diff: r[4], exp: r[5], sample: true }));
+
+/* ===================== 知識尖塔：戰鬥引擎（不碰 DOM） ===================== */
+const MAX_PLAY = 8, HAND_MAX = 10, MANA_MAX = 10;
+const rnd = n => Math.floor(Math.random() * n);
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+let UID = 1;
+const mk = id => ({ uid: UID++, id });
+const repeat = (id, n) => Array.from({ length: n }, () => id);
+
+const CLASSES = {
+  warrior: {
+    name: '戰士', hp: 82, icon: 'sword', tag: '堅硬的盾，沉重的斧',
+    traits: '護甲、力量、用 HP 換效益',
+    blurb: '血量最多、防禦最強。靠護甲撐住，再用力量把傷害越疊越高。',
+    rate: { 防禦: 5, 單體爆發: 3, 持續傷害: 1, 群攻: 2, 過牌: 1, 上手難度: 1 },
+    starter: [...repeat('strike', 4), ...repeat('defend', 4), ...repeat('warrior_base', 2)],
+  },
+  mage: {
+    name: '法師', hp: 72, icon: 'wand', tag: '魔力不會消失，越打越強',
+    traits: '魔力、灼燒、群攻、過牌',
+    blurb: '血量少但爆發很強。累積魔力後一次放出，還能同時打好幾隻敵人。',
+    rate: { 防禦: 2, 單體爆發: 4, 持續傷害: 3, 群攻: 5, 過牌: 4, 上手難度: 4 },
+    starter: [...repeat('strike', 4), ...repeat('defend', 4), ...repeat('mage_base', 2)],
+  },
+  archer: {
+    name: '弓箭手', hp: 75, icon: 'bow', tag: '一箭接一箭，百步穿楊',
+    traits: '標記、多段攻擊、箭矢',
+    blurb: '攻守平均、很穩定。先標記目標，再用多段攻擊把傷害疊起來。',
+    rate: { 防禦: 3, 單體爆發: 3, 持續傷害: 2, 群攻: 3, 過牌: 3, 上手難度: 3 },
+    starter: [...repeat('strike', 4), ...repeat('defend', 4), ...repeat('archer_base', 2)],
+  },
+  rogue: {
+    name: '盜賊', hp: 70, icon: 'dagger', tag: '毒在暗處，慢慢發作',
+    traits: '毒、0 費連段、棄牌',
+    blurb: '前期比較慢。把毒疊起來之後，敵人會自己一直扣血，用 0 費牌連出一大串。',
+    rate: { 防禦: 2, 單體爆發: 3, 持續傷害: 5, 群攻: 3, 過牌: 4, 上手難度: 5 },
+    starter: [...repeat('strike', 4), ...repeat('defend', 4), ...repeat('rogue_base', 2)],
+  },
+};
+
+/* 敵人招式：d=攻擊傷害 t=次數 b=獲得護甲 str=增加力量 debuff=[狀態,層數] */
+const ENEMY_DEFS = {
+  slime:    { n: '史萊姆',   s: '🟢', hp: 24, moves: [{ d: 6 }, { d: 8 }, { b: 6 }] },
+  bat:      { n: '小蝙蝠',   s: '🦇', hp: 13, moves: [{ d: 4, t: 2 }, { d: 6 }] },
+  goblin:   { n: '哥布林',   s: '👺', hp: 34, moves: [{ d: 7 }, { d: 4, debuff: ['weak', 1] }, { d: 11 }] },
+  golem:    { n: '石像鬼',   s: '🗿', hp: 62, tier: 'elite', moves: [{ b: 12 }, { d: 14 }, { str: 2 }, { d: 10, b: 6 }] },
+  skeleton: { n: '骷髏兵',   s: '💀', hp: 26, moves: [{ d: 7 }, { d: 5, b: 5 }, { d: 9 }] },
+  spider:   { n: '毒蜘蛛',   s: '🕷️', hp: 32, moves: [{ d: 5, debuff: ['weak', 1] }, { debuff: ['vuln', 2] }, { d: 10 }] },
+  knight:   { n: '黑暗騎士', s: '🛡️', hp: 88, tier: 'elite', moves: [{ b: 14 }, { d: 12 }, { str: 2 }, { d: 7, t: 2 }, { d: 18 }] },
+  wolf:     { n: '野狼',     s: '🐺', hp: 30, moves: [{ d: 8 }, { d: 5, t: 2 }, { b: 6, d: 4 }] },
+  ghost:    { n: '幽靈',     s: '👻', hp: 26, moves: [{ d: 6, debuff: ['weak', 1] }, { d: 10 }, { debuff: ['vuln', 1], b: 6 }] },
+  orc:      { n: '獸人',     s: '👹', hp: 46, moves: [{ d: 12 }, { str: 2 }, { d: 8, b: 8 }, { d: 16 }] },
+  dragon:   { n: '知識巨龍', s: '🐉', hp: 150, tier: 'boss', moves: [{ d: 10 }, { str: 2 }, { d: 6, t: 3 }, { b: 16, d: 6 }, { debuff: ['vuln', 2], d: 8 }, { d: 22 }] },
+};
+/* 一般模式 10 關：第 5 關是菁英，第 10 關是 BOSS */
+const CLASSIC_IDS = [['slime'], ['bat', 'bat'], ['goblin'], ['skeleton', 'skeleton'], ['golem'], ['spider', 'bat'], ['skeleton', 'goblin'], ['spider', 'skeleton'], ['goblin', 'spider', 'bat'], ['dragon']];
+const RANK_FLOORS = 50;
+const tierOfIds = ids => ids.some(id => ENEMY_DEFS[id].tier === 'boss') ? 'boss' : ids.some(id => ENEMY_DEFS[id].tier === 'elite') ? 'elite' : 'normal';
+/* 排行榜模式 50 關：每 5 關一隻菁英（5、10…45），第 50 關是 BOSS；敵人血量與傷害隨關卡增加 */
+function makeFloors(mode) {
+  if (mode !== 'rank') return CLASSIC_IDS.map(ids => ({ ids, tier: tierOfIds(ids), hpMul: 1, dmgMul: 1 }));
+  const out = [];
+  for (let f = 1; f <= RANK_FLOORS; f++) {
+    const hpMul = 1 + RANK_SCALE.hp * (f - 1), dmgMul = 1 + RANK_SCALE.dmg * (f - 1);
+    let ids;
+    if (f === RANK_FLOORS) ids = ['dragon'];
+    else if (f % 5 === 0) ids = [(f / 5) % 2 ? 'golem' : 'knight'];
+    else {
+      const pool = f <= 10 ? ['slime', 'bat', 'goblin', 'skeleton', 'wolf'] : f <= 25 ? ['goblin', 'skeleton', 'spider', 'wolf', 'ghost', 'bat'] : ['spider', 'ghost', 'orc', 'skeleton', 'wolf', 'goblin'];
+      const n = f < 4 ? 1 : f < 16 ? 2 : 3;
+      ids = Array.from({ length: n }, () => pool[rnd(pool.length)]);
+    }
+    const tier = tierOfIds(ids);
+    out.push({ ids, tier, hpMul: hpMul * (tier === 'elite' ? 1.2 : tier === 'boss' ? 1.4 : 1), dmgMul });
+  }
+  return out;
+}
+const DIFF = { easy: { hp: .7, dmg: .6 }, normal: { hp: .85, dmg: .8 }, hard: { hp: 1, dmg: 1 }, rank: { hp: .7, dmg: .6 } };
+const RANK_SCALE = { hp: .04, dmg: .025 };
+
+/* 與畫面溝通的掛勾；測試時可以換掉 */
+const ui = {
+  async quiz(card, def) { return true; },
+  async choose(spec) { return spec.cards.slice(0, spec.count); },
+  fx() {}, async wait() {}, render() {}, log() {},
+};
+
+let G = null, B = null;
+
+/* ---------- 遊戲（一整趟） ---------- */
+function newRun(cls, name, opts) {
+  G = {
+    cls, name, floor: 0, mode: (opts && opts.mode) || 'classic',
+    opts: Object.assign({ diff: 'normal', streak: true }, opts || {}, (opts && opts.mode === 'rank') ? { diff: 'rank', streak: true } : {}),
+    hp: CLASSES[cls].hp, maxHp: CLASSES[cls].hp,
+    deck: CLASSES[cls].starter.slice(), streak: 0,
+    stats: { asked: 0, correct: 0, played: 0, maxStreak: 0, curStreak: 0 }, missed: [],
+  };
+  G.floors = makeFloors(G.mode);
+  B = null;
+  return G;
+}
+
+function startBattle() {
+  const diff = DIFF[G.opts.diff];
+  const fl = G.floors[G.floor];
+  const enemies = fl.ids.map((id, i) => {
+    const d = ENEMY_DEFS[id];
+    const hp = Math.max(1, Math.round(d.hp * diff.hp * fl.hpMul));
+    return { id, i, name: d.n, sprite: d.s, tier: d.tier || 'normal', dmgMul: fl.dmgMul, hp, maxHp: hp, block: 0, str: 0, weak: 0, vuln: 0, poison: 0, burn: 0, mark: 0, mi: 0, intent: d.moves[0] };
+  });
+  B = {
+    enemies, turn: 0, over: null, phase: 'init',
+    draw: shuffle(G.deck.map(mk)), hand: [], discard: [], exhaust: [],
+    p: { block: 0, str: 0, tempStr: 0, mana: 0, weak: 0, vuln: 0, energy: 0 },
+    pw: {}, t: {}, nt: { draw: 0, energy: 0, block: 0, atk: 0 }, retainNext: 0,
+  };
+  startPlayerTurn();
+  return B;
+}
+
+const living = () => B.enemies.filter(e => e.hp > 0);
+const firstLiving = () => B.enemies.find(e => e.hp > 0);
+
+function checkEnd() {
+  if (B.over) return B.over;
+  if (G.hp <= 0) B.over = 'lose';
+  else if (!living().length) B.over = 'win';
+  return B.over;
+}
+
+/* ---------- 基本動作 ---------- */
+function ensureDraw(n) {
+  if (B.draw.length < n && B.discard.length) { B.draw.push(...shuffle(B.discard.splice(0))); }
+}
+function drawCards(n) {
+  for (let i = 0; i < n; i++) {
+    ensureDraw(1);
+    if (!B.draw.length) break;
+    const c = B.draw.shift();
+    if (B.hand.length >= HAND_MAX) B.discard.push(c); else B.hand.push(c);
+  }
+}
+function addToHand(id, n) {
+  for (let i = 0; i < n; i++) { const c = mk(id); if (B.hand.length >= HAND_MAX) B.discard.push(c); else B.hand.push(c); }
+}
+const gainMana = n => { B.p.mana = Math.min(MANA_MAX, B.p.mana + n); };
+
+function hurtEnemy(e, n, pierce) {
+  if (e.hp <= 0 || n <= 0) return 0;
+  let left = n;
+  if (!pierce && e.block > 0) { const a = Math.min(e.block, left); e.block -= a; left -= a; }
+  e.hp = Math.max(0, e.hp - left);
+  ui.fx('dmg', e, n);
+  return left;
+}
+function hurtPlayer(n, opt = {}) {
+  if (n <= 0) return 0;
+  let left = n;
+  if (!opt.pierce && B.p.block > 0) { const a = Math.min(B.p.block, left); B.p.block -= a; left -= a; }
+  if (opt.self) left = Math.max(0, Math.min(left, G.hp - 1));
+  ui.fx('pdmg', null, n);
+  if (left > 0) {
+    G.hp -= left; B.t.lostHp = true;
+    if (B.pw.hpLossStr && (B.t.hpStrCount || 0) < 2) { B.p.str += B.pw.hpLossStr; B.t.hpStrCount = (B.t.hpStrCount || 0) + 1; }
+    if (B.pw.hpLossBlock) B.p.block += B.pw.hpLossBlock;
+  }
+  checkEnd();
+  return left;
+}
+
+/* ---------- 回合 ---------- */
+function startPlayerTurn() {
+  B.turn++;
+  const keep = B.pw.retainAll ? B.p.block : Math.min(B.p.block, B.retainNext || 0);
+  B.retainNext = 0;
+  const nt = B.nt; B.nt = { draw: 0, energy: 0, block: 0, atk: 0 };
+  B.t = { plays: 0, cardsPlayed: 0, atkPlayed: 0, skillPlayed: 0, zeroPlayed: 0, lostHp: false, hpStrCount: 0, firstHit: false, thorns: 0, thornsBurn: 0, nextAtk: nt.atk || 0 };
+  B.p.block = keep + nt.block;
+  B.p.tempStr = B.pw.startTempStr || 0;
+  B.p.energy = 3 + (B.pw.startEnergy || 0) + nt.energy;
+  if (B.pw.startLoseHp) hurtPlayer(B.pw.startLoseHp, { pierce: true, self: true });
+  if (B.pw.startMana) gainMana(B.pw.startMana);
+  for (const e of living()) {
+    if (B.pw.startBurnAll) e.burn += B.pw.startBurnAll;
+    if (B.pw.startPoisonAll) e.poison += B.pw.startPoisonAll + (B.pw.poisonBonus || 0);
+    if (B.pw.startMarkAll) e.mark += B.pw.startMarkAll;
+  }
+  if (B.pw.startZap) { const e = living()[rnd(living().length)]; if (e) hurtEnemy(e, B.pw.startZap, false); }
+  drawCards(Math.max(1, 5 + (B.pw.startDraw || 0) + nt.draw));
+  if (B.pw.startArrow) addToHand('tok_arrow', B.pw.startArrow);
+  B.phase = 'player';
+  checkEnd();
+}
+
+async function endPlayerTurn() {
+  if (B.phase !== 'player' || B.over) return;
+  B.phase = 'enemy';
+  if (B.pw.endBlock) B.p.block += B.pw.endBlock;
+  if (B.pw.endHeal) G.hp = Math.min(G.maxHp, G.hp + B.pw.endHeal);
+  if (B.pw.endMana) gainMana(B.pw.endMana);
+  if (B.pw.endManaAoe && B.p.mana > 0) for (const e of living()) hurtEnemy(e, B.p.mana * B.pw.endManaAoe, false);
+  if (B.pw.endLoseHp) hurtPlayer(B.pw.endLoseHp, { pierce: true, self: true });
+  B.retainNext = Math.max(0, B.retainNext);
+  B.discard.push(...B.hand.splice(0));
+  if (B.p.weak > 0) B.p.weak--;
+  if (B.p.vuln > 0) B.p.vuln--;
+  for (const e of B.enemies) if (e.mark > 0 && !B.pw.marksPersist) e.mark--;
+  ui.render();
+  if (checkEnd()) return;
+  await enemyPhase();
+  if (checkEnd()) return;
+  startPlayerTurn();
+}
+
+function enemyDamage(e, raw) {
+  let d = Math.round(raw * DIFF[G.opts.diff].dmg * (e.dmgMul || 1)) + e.str;
+  if (e.weak > 0) d = Math.floor(d * .75);
+  if (B.p.vuln > 0) d = Math.floor(d * 1.5);
+  return Math.max(0, d);
+}
+
+async function enemyPhase() {
+  for (const e of B.enemies) {
+    if (e.hp <= 0) continue;
+    e.block = 0;
+    if (e.poison > 0) { hurtEnemy(e, e.poison, true); e.poison--; ui.render(); await ui.wait(260); }
+    if (e.hp > 0 && e.burn > 0) { hurtEnemy(e, e.burn, true); e.burn = Math.max(0, e.burn - 2); ui.render(); await ui.wait(260); }
+  }
+  if (checkEnd()) return;
+  for (const e of living()) {
+    const m = e.intent;
+    ui.fx('act', e);
+    await ui.wait(280);
+    if (m.b) e.block += Math.round(m.b * (e.dmgMul || 1));
+    if (m.str) e.str += m.str;
+    if (m.debuff) { B.p[m.debuff[0]] += m.debuff[1]; }
+    if (m.d) {
+      for (let k = 0; k < (m.t || 1); k++) {
+        let d = enemyDamage(e, m.d);
+        if (B.pw.firstHitHalf && !B.t.firstHit) d = Math.ceil(d / 2);
+        B.t.firstHit = true;
+        hurtPlayer(d);
+        const th = (B.t.thorns || 0) + (B.pw.thorns || 0);
+        if (th) hurtEnemy(e, th, false);
+        if (B.t.thornsBurn) e.burn += B.t.thornsBurn;
+        ui.render();
+        await ui.wait(240);
+        if (G.hp <= 0 || e.hp <= 0) break;
+      }
+    }
+    ui.render();
+    if (checkEnd()) return;
+    await ui.wait(220);
+  }
+  for (const e of B.enemies) {
+    if (e.hp <= 0) continue;
+    if (e.weak > 0) e.weak--;
+    if (e.vuln > 0) e.vuln--;
+    const mv = ENEMY_DEFS[e.id].moves;
+    e.mi++; e.intent = mv[e.mi % mv.length];
+  }
+}
+
+/* ---------- 出牌 ---------- */
+function isXCard(def) { return def.cost < 0; }
+function costOf(card) {
+  const def = CARDS[card.id];
+  if (isXCard(def)) return -1;
+  let c = def.cost;
+  if (card.free) return 0;
+  if ((B.t.freeCards || 0) > 0) return 0;
+  if (B.pw.firstFree && B.t.cardsPlayed === 0) return 0;
+  if (B.t.nextAtkFree && def.type === 'attack') c = 0;
+  if (B.t.nextCost) c = Math.max(0, c + B.t.nextCost);
+  return c;
+}
+function needsTarget(card) {
+  const def = CARDS[card.id];
+  return def.ops.some(o => (o.op === 'dmg' && !o.all && !o.rand) || (o.op === 'status' && !o.all) || o.op === 'poisonDouble');
+}
+function canPlay(card) {
+  if (B.phase !== 'player' || B.over) return { ok: false, why: '現在不能出牌' };
+  if (B.t.plays >= MAX_PLAY) return { ok: false, why: `每回合最多出 ${MAX_PLAY} 張牌` };
+  const def = CARDS[card.id];
+  const c = isXCard(def) ? 0 : costOf(card);
+  if (c > B.p.energy) return { ok: false, why: '能量不夠' };
+  return { ok: true };
+}
+
+function condTrue(c, ctx) {
+  const t = ctx.target;
+  switch (c) {
+    case 'hasBlock': return B.p.block > 0;
+    case 'vuln': return !!t && t.vuln > 0;
+    case 'burn': return !!t && t.burn > 0;
+    case 'mark': case 'targetMark': return !!t && t.mark > 0;
+    case 'mark3': return !!t && t.mark >= 3;
+    case 'poison': return !!t && t.poison > 0;
+    case 'hpLow': return G.hp * 2 < G.maxHp;
+    case 'lostHp': return !!B.t.lostHp;
+    case 'atkPlayed': return B.t.atkPlayed > 0;
+    case 'firstCard': return B.t.cardsPlayed === 0;
+    case 'enemyWeak': return living().some(e => e.weak > 0);
+    case 'skillPlayed': return B.t.skillPlayed > 0;
+    case 'handLE2': return B.hand.length <= 2;
+  }
+  return false;
+}
+const applyCond = (n, cd) => cd.t === 'add' ? n + cd.v : cd.t === 'set' ? cd.v : n * cd.v;
+const countOf = c => ({ atkPlayed: B.t.atkPlayed, cardPlayed: B.t.cardsPlayed, zeroPlayed: B.t.zeroPlayed, mana: B.p.mana }[c] || 0);
+
+function calcHit(base, e, ctx, first) {
+  let d = base + B.p.str + B.p.tempStr + (B.pw.hitBonus || 0);
+  if (e.mark > 0) d += e.mark;
+  if (ctx.zero) d += (B.pw.zeroDmg || 0) + (B.t.zeroDmgTurn || 0);
+  if (first) { d += ctx.firstBonus + ctx.sb; ctx.firstBonus = 0; ctx.sb = 0; }
+  if (ctx.mult > 1) d *= ctx.mult;
+  if (B.p.weak > 0) d = Math.floor(d * .75);
+  if (e.vuln > 0) d = Math.floor(d * 1.5);
+  return Math.max(0, d);
+}
+
+async function runOps(def, ctx) {
+  for (const o of def.ops) {
+    if (B.over || ctx.abort) break;
+    await runOp(o, ctx, def);
+  }
+}
+
+async function runOp(o, ctx, def) {
+  const tgt = () => ctx.target && ctx.target.hp > 0 ? ctx.target : firstLiving();
+  switch (o.op) {
+    case 'dmg': {
+      let n = o.n;
+      const t0 = tgt();
+      ctx.target = t0;
+      if (o.scale) {
+        const s = o.scale;
+        const src = s.src === 'block' ? B.p.block : s.src === 'mana' ? B.p.mana : s.src === 'burn' ? (t0 ? t0.burn : 0) : s.src === 'poison' ? (t0 ? t0.poison : 0) : 0;
+        n = Math.ceil(src * s.k);
+        if (s.consume) { if (s.src === 'mana') B.p.mana = 0; if (s.src === 'burn' && t0) t0.burn = 0; }
+        if (n <= 0) break;
+      }
+      if (o.cond && condTrue(o.cond.c, ctx)) n = applyCond(n, o.cond);
+      if (o.per) n += o.per.v * countOf(o.per.c);
+      const hits = o.hits === 'X' ? ctx.X : o.hits === 'X+1' ? ctx.X + 1 : o.hits;
+      if (hits <= 0) break;
+      for (let i = 0; i < hits; i++) {
+        if (B.over) break;
+        let targets;
+        if (o.all) targets = living();
+        else if (o.rand) { const l = living(); targets = l.length ? [l[rnd(l.length)]] : []; }
+        else targets = ctx.target && ctx.target.hp > 0 ? [ctx.target] : [];
+        for (const e of targets) {
+          const first = !ctx.bonusUsed;
+          const d = calcHit(n, e, ctx, first);
+          ctx.bonusUsed = true;
+          hurtEnemy(e, d, false);
+          ctx.hit.add(e);
+        }
+        ui.render();
+        if (hits > 1 || o.all) await ui.wait(110);
+        if (!living().length) break;
+      }
+      ctx.dmgDone = true;
+      break;
+    }
+    case 'block': {
+      let n = o.n;
+      if (o.scale) n = Math.ceil((o.scale.src === 'hand' ? B.hand.length : B.p.mana) * o.scale.k);
+      if (o.cond && condTrue(o.cond.c, ctx)) n = applyCond(n, o.cond);
+      if (n <= 0) break;
+      n += ctx.sb; ctx.sb = 0;
+      B.p.block += n; ui.fx('block', null, n);
+      break;
+    }
+    case 'heal': if (o.only && !condTrue(o.only, ctx)) break; G.hp = Math.min(G.maxHp, G.hp + o.n); ui.fx('heal', null, o.n); break;
+    case 'loseHp': hurtPlayer(o.n, { pierce: true, self: true }); break;
+    case 'draw': if (o.only && !condTrue(o.only, ctx)) break; drawCards(o.n); break;
+    case 'energy': B.p.energy += o.n; break;
+    case 'mana': gainMana(o.n); break;
+    case 'payMana': if (B.p.mana < o.n) ctx.abort = true; else B.p.mana -= o.n; break;
+    case 'manaDouble': gainMana(B.p.mana); break;
+    case 'str': B.p.str += o.n; break;
+    case 'tempStr': B.p.tempStr += o.n; break;
+    case 'status': {
+      const targets = o.all ? living() : [tgt()].filter(Boolean);
+      for (const e of targets) {
+        let n = o.n;
+        if (o.s === 'poison') n += (B.pw.poisonBonus || 0);
+        e[o.s] += n;
+        ui.fx('status', e, 0);
+      }
+      if (!o.all) ctx.target = targets[0];
+      break;
+    }
+    case 'poisonDouble': { const e = tgt(); if (e) e.poison *= 2; break; }
+    case 'discard': {
+      if (!B.hand.length) break;
+      let picked;
+      if (B.hand.length <= o.n) picked = B.hand.slice();
+      else picked = await ui.choose({ title: `選 ${o.n} 張牌丟掉`, cards: B.hand.slice(), count: o.n, from: 'hand' });
+      for (const c of picked) {
+        const i = B.hand.findIndex(x => x.uid === c.uid);
+        if (i >= 0) { B.discard.push(B.hand.splice(i, 1)[0]); if (B.pw.discardBlock) B.p.block += B.pw.discardBlock; }
+      }
+      break;
+    }
+    case 'scry': {
+      ensureDraw(o.look);
+      const top = B.draw.splice(0, Math.min(o.look, B.draw.length));
+      if (!top.length) break;
+      const pick = await ui.choose({ title: `從牌庫頂 ${top.length} 張牌選 ${Math.min(o.pick, top.length)} 張拿到手上`, cards: top.slice(), count: Math.min(o.pick, top.length), from: 'draw' });
+      const ids = new Set(pick.map(c => c.uid));
+      for (const c of top) {
+        if (ids.has(c.uid)) { if (B.hand.length >= HAND_MAX) B.discard.push(c); else B.hand.push(c); }
+      }
+      const rest = top.filter(c => !ids.has(c.uid));
+      if (o.discardRest) B.discard.push(...rest); else B.draw.unshift(...rest);
+      break;
+    }
+    case 'fetch': {
+      const pool = B.discard.filter(c => o.type === 'any' || CARDS[c.id].type === o.type);
+      if (!pool.length) break;
+      const pick = await ui.choose({ title: o.to === 'top' ? '選 1 張放回牌庫最上面' : '從棄牌堆選 1 張拿回手上', cards: pool.slice(), count: 1, from: 'discard' });
+      for (const c of pick) {
+        const i = B.discard.findIndex(x => x.uid === c.uid);
+        if (i < 0) continue;
+        const [card] = B.discard.splice(i, 1);
+        if (o.to === 'top') B.draw.unshift(card); else if (B.hand.length >= HAND_MAX) B.discard.push(card); else B.hand.push(card);
+      }
+      break;
+    }
+    case 'addCard': addToHand(o.id, o.n); break;
+    case 'pickFree': {
+      const pool = B.hand.filter(c => !c.free && CARDS[c.id].cost !== 0);
+      if (!pool.length) break;
+      const pick = await ui.choose({ title: '選 1 張牌，本回合費用變 0', cards: pool.slice(), count: 1, from: 'hand' });
+      for (const c of pick) { const h = B.hand.find(x => x.uid === c.uid); if (h) h.free = true; }
+      break;
+    }
+    case 'cleanse': { let k = o.n; for (const s of ['weak', 'vuln']) if (k > 0 && B.p[s] > 0) { B.p[s] = 0; k--; } break; }
+    case 'loseAllBlock': B.p.block = 0; break;
+    case 'retain': B.retainNext += o.n; break;
+    case 'nextTurn': B.nt[o.k] += o.n; break;
+    case 'nextAtk': B.t.nextAtk = (B.t.nextAtk || 0) + o.n; break;
+    case 'nextAtkMult': B.t.nextAtkMult = Math.max(B.t.nextAtkMult || 1, o.n); break;
+    case 'nextAtkTwice': B.t.nextAtkTwice = true; break;
+    case 'nextAtkFree': B.t.nextAtkFree = true; break;
+    case 'nextCost': B.t.nextCost = (B.t.nextCost || 0) + o.n; break;
+    case 'freeCards': B.t.freeCards = (B.t.freeCards || 0) + o.n; break;
+    case 'zeroDmgTurn': B.t.zeroDmgTurn = (B.t.zeroDmgTurn || 0) + o.n; break;
+    case 'atkPoisonTurn': B.t.atkPoisonTurn = (B.t.atkPoisonTurn || 0) + o.n; break;
+    case 'poisonPerCardTurn': B.t.poisonPerCardTurn = (B.t.poisonPerCardTurn || 0) + o.n; break;
+    case 'thorns': B.t.thorns += o.n; break;
+    case 'thornsBurn': B.t.thornsBurn += o.n; break;
+    case 'pw': B.pw[o.k] = (B.pw[o.k] || 0) + o.n; if (o.k === 'startLoseHp' || o.k === 'endLoseHp') {} break;
+  }
+}
+
+/* 打出一張牌：先付費、回答問題，答對才發動 */
+async function playCard(uid, targetIdx) {
+  const idx = B.hand.findIndex(c => c.uid === uid);
+  if (idx < 0) return { err: '找不到這張牌' };
+  const card = B.hand[idx], def = CARDS[card.id];
+  const can = canPlay(card);
+  if (!can.ok) return { err: can.why };
+  let cost = costOf(card), X = 0;
+  if (isXCard(def)) { X = B.p.energy; cost = X; }
+  /* 消耗各種「下一張牌」的費用優惠 */
+  if (!card.free && !isXCard(def)) {
+    if ((B.t.freeCards || 0) > 0) B.t.freeCards--;
+    else if (B.pw.firstFree && B.t.cardsPlayed === 0) { /* 第一張免費 */ }
+    else {
+      if (B.t.nextAtkFree && def.type === 'attack') B.t.nextAtkFree = false;
+      if (B.t.nextCost) B.t.nextCost = 0;
+    }
+  }
+  B.p.energy -= cost;
+  B.t.plays++;
+  B.hand.splice(idx, 1);
+  B.phase = 'quiz';
+  ui.render();
+
+  const ctx = { X, target: B.enemies[targetIdx] && B.enemies[targetIdx].hp > 0 ? B.enemies[targetIdx] : firstLiving(), hit: new Set(), firstBonus: 0, sb: 0, mult: 1, zero: cost === 0 };
+  G.stats.asked++;
+  const ok = await ui.quiz(card, def);
+  B.phase = 'player';
+
+  if (!ok) {
+    G.streak = 0; G.stats.curStreak = 0;
+    B.discard.push(card);
+    ui.render();
+    return { ok: false };
+  }
+  G.stats.correct++; G.stats.played++;
+  G.stats.curStreak++; G.stats.maxStreak = Math.max(G.stats.maxStreak, G.stats.curStreak);
+  if (G.opts.streak) {
+    if (G.streak >= 3) { ctx.sb = 2; G.streak = 0; } else G.streak++;
+  }
+  /* 攻擊牌的各種加成 */
+  if (def.type === 'attack' && def.ops.some(o => o.op === 'dmg')) {
+    ctx.firstBonus = (B.t.nextAtk || 0) + (B.pw.firstAtk && B.t.atkPlayed === 0 ? B.pw.firstAtk : 0) + (B.pw.third3Atk && B.t.cardsPlayed + 1 >= 3 ? B.pw.third3Atk : 0);
+    ctx.mult = B.t.nextAtkMult || 1;
+    B.t.nextAtk = 0; B.t.nextAtkMult = 0;
+  }
+  const twice = def.type === 'attack' && B.t.nextAtkTwice;
+  if (twice) B.t.nextAtkTwice = false;
+  await runOps(def, ctx);
+  if (twice && !B.over) { ctx.abort = false; await runOps(def, ctx); }
+
+  /* 攻擊後的附加效果 */
+  if (def.type === 'attack' && ctx.hit.size) {
+    for (const e of ctx.hit) {
+      const p = (B.pw.atkPoison || 0) + (B.t.atkPoisonTurn || 0);
+      if (p) e.poison += p + (B.pw.poisonBonus || 0);
+      if (B.pw.atkBurn) e.burn += B.pw.atkBurn;
+      if (B.pw.atkMarkHeal) { e.mark += B.pw.atkMarkHeal; G.hp = Math.min(G.maxHp, G.hp + B.pw.atkMarkHeal); }
+    }
+  }
+  /* 出牌後觸發的能力 */
+  const target = ctx.target;
+  B.t.cardsPlayed++;
+  if (def.type === 'attack') B.t.atkPlayed++;
+  if (def.type === 'skill') B.t.skillPlayed++;
+  const zero = cost === 0;
+  if (zero) {
+    B.t.zeroPlayed++;
+    if (B.pw.zeroBlock) B.p.block += B.pw.zeroBlock;
+    if (B.pw.zeroDraw && B.t.zeroPlayed === 1) drawCards(B.pw.zeroDraw);
+  }
+  if (def.type === 'attack' && B.pw.atkBlock) B.p.block += B.pw.atkBlock;
+  if (def.type === 'skill') { if (B.pw.skillBlock) B.p.block += B.pw.skillBlock; if (B.pw.skillMana) gainMana(B.pw.skillMana); }
+  if (B.pw.third && def.type === 'attack' && B.t.atkPlayed === 3) drawCards(B.pw.third);
+  if (B.pw.every3Mana && G.stats.played % 3 === 0) gainMana(B.pw.every3Mana);
+  if (B.pw.playAoe) for (const e of living()) hurtEnemy(e, B.pw.playAoe, false);
+  if (B.pw.fifthAoe && B.t.cardsPlayed === 5) for (const e of living()) hurtEnemy(e, B.pw.fifthAoe, false);
+  if (B.t.poisonPerCardTurn) { const e = target && target.hp > 0 ? target : firstLiving(); if (e) e.poison += B.t.poisonPerCardTurn + (B.pw.poisonBonus || 0); }
+
+  /* 牌的去向 */
+  if (def.power) { /* 能力牌留在場上，不進棄牌堆 */ }
+  else if (def.exhaust) B.exhaust.push(card);
+  else B.discard.push(card);
+  checkEnd();
+  ui.render();
+  return { ok: true };
+}
+
+/* ---------- 獎勵 ---------- */
+function rewardChoices() {
+  const tier = G.floors[G.floor].tier !== 'normal' ? 'elite' : 'normal';
+  const w = tier === 'elite' ? { common: 35, uncommon: 45, rare: 20 } : { common: 62, uncommon: 31, rare: 7 };
+  const pool = POOLS[G.cls];
+  const out = [];
+  let guard = 0;
+  while (out.length < 3 && guard++ < 200) {
+    let r = rnd(100), rar = 'common';
+    if (r >= w.common) rar = r < w.common + w.uncommon ? 'uncommon' : 'rare';
+    const cand = pool.filter(id => CARDS[id].rarity === rar && !out.includes(id));
+    if (cand.length) out.push(cand[rnd(cand.length)]);
+  }
+  return out;
+}
+function battleHeal() {
+  /* 一般關回復最大生命的 15%；菁英或 BOSS 關回復 30% */
+  const strong = G.floors[G.floor].tier !== 'normal';
+  const n = Math.ceil(G.maxHp * (strong ? .3 : .15));
+  const before = G.hp;
+  G.hp = Math.min(G.maxHp, G.hp + n);
+  return G.hp - before;
+}
+/* 排行榜模式：可以選擇回復最大生命的 20% */
+function healPct(p) { const n = Math.ceil(G.maxHp * p), before = G.hp; G.hp = Math.min(G.maxHp, G.hp + n); return G.hp - before; }
+const isLastFloor = () => G.floor >= G.floors.length - 1;
+
+/* ---------- 題庫 ---------- */
+function pickQuestion(bank, enabledSubjects, rarity, used) {
+  let pool = bank.filter(q => !enabledSubjects || enabledSubjects.has(q.subject || '未分類'));
+  if (!pool.length) pool = bank.slice();
+  if (!pool.length) return null;
+  const want = rarity === 'rare' ? 3 : rarity === 'uncommon' ? 2 : 1;
+  const fresh = pool.filter(q => !used.has(q.id));
+  let src = fresh.length ? fresh : (used.clear(), pool);
+  let exact = src.filter(q => !q.diff || q.diff === want);
+  if (!exact.length) {
+    const best = Math.min(...src.map(q => Math.abs(q.diff - want)));
+    exact = src.filter(q => Math.abs(q.diff - want) === best);
+  }
+  const q = exact[rnd(exact.length)];
+  used.add(q.id);
+  return q;
+}
+
+/* ===================== 畫面與互動 ===================== */
+const $ = (s, r = document) => r.querySelector(s);
+const app = document.getElementById('app');
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+};
+
+/* ---------- 圖示（粉筆線條） ---------- */
+const ICONS = {
+  sword: '<path d="M20 4l-1 5-9 9-4-4 9-9z"/><path d="M6 14l-3 3 4 4 3-3M4.5 19.5L3 21"/>',
+  shield: '<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/>',
+  wand: '<path d="M4 20L15 9"/><path d="M17 3l1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/>',
+  bow: '<path d="M6 3c7 3 7 15 0 18"/><path d="M6 3v18"/><path d="M6 12h15M17 8l4 4-4 4"/>',
+  dagger: '<path d="M12 2l3 9h-6z"/><path d="M7 11h10M12 11v8M10 22h4"/>',
+  flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-3 2-4 3-6 1 1 1.5 2 2 3 1-2 0-4 0-7z"/>',
+  drop: '<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>',
+  bolt: '<path d="M13 2L5 14h6l-1 8 8-12h-6z"/>',
+  book: '<path d="M4 5h7a2 2 0 0 1 1 .6A2 2 0 0 1 13 5h7v14h-7a2 2 0 0 0-1 .6 2 2 0 0 0-1-.6H4z"/><path d="M12 5.6V19"/>',
+  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><path d="M12 12h.01"/>',
+  heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  down: '<path d="M12 4v14M6 12l6 6 6-6"/>',
+  crystal: '<path d="M12 2l7 8-7 12-7-12z"/><path d="M5 10h14"/>',
+  skull: '<path d="M5 11a7 7 0 0 1 14 0c0 2-1 3-2 4v3H7v-3c-1-1-2-2-2-4z"/><path d="M9 12h.01M15 12h.01M10 18v2M14 18v2"/>',
+  up: '<path d="M12 20V6M6 12l6-6 6 6"/>',
+};
+const icon = (n, s = 24, sw = 1.8) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ICONS.star}</svg>`;
+function artFor(def) {
+  if (def.power) return 'star';
+  const ops = def.ops.map(o => o.op + (o.s ? ':' + o.s : ''));
+  const has = k => ops.includes(k);
+  if (has('dmg')) {
+    if (def.cls === 'warrior') return 'sword';
+    if (def.cls === 'mage') return def.ops.some(o => o.op === 'status' && o.s === 'burn') ? 'flame' : 'bolt';
+    if (def.cls === 'archer') return 'bow';
+    if (def.cls === 'rogue') return 'dagger';
+    return 'sword';
+  }
+  if (has('status:poison') || has('poisonDouble')) return 'drop';
+  if (has('status:burn')) return 'flame';
+  if (has('status:mark')) return 'target';
+  if (has('block')) return 'shield';
+  if (has('draw') || has('scry') || has('fetch') || has('discard')) return 'book';
+  if (has('mana') || has('manaDouble') || has('payMana')) return 'crystal';
+  if (has('heal')) return 'heart';
+  if (has('status:weak') || has('status:vuln')) return 'down';
+  if (has('energy')) return 'bolt';
+  if (has('addCard')) return def.cls === 'archer' ? 'bow' : 'dagger';
+  return 'star';
+}
+const TYPE_ZH = { attack: '攻擊', skill: '技能', power: '能力' };
+
+/* ---------- 聲音 ---------- */
+let AC = null;
+function tone(f, d, type = 'sine', v = .06, t0 = 0) {
+  if (!S.settings.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + t0;
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + d + .02);
+  } catch (e) {}
+}
+const sfx = {
+  ok() { tone(660, .12); tone(990, .22, 'sine', .06, .1); },
+  bad() { tone(200, .32, 'sawtooth', .045); },
+  hit() { tone(150, .1, 'square', .045); },
+  tap() { tone(520, .05, 'triangle', .035); },
+  win() { [523, 659, 784, 1047].forEach((f, i) => tone(f, .28, 'sine', .06, i * .12)); },
+  lose() { [400, 330, 260].forEach((f, i) => tone(f, .32, 'sawtooth', .045, i * .18)); },
+};
+
+/* ---------- 狀態 ---------- */
+const S = {
+  screen: 'title', name: store.get('kt_name', ''), cls: null,
+  bank: null, used: new Set(),
+  settings: Object.assign({ diff: 'easy', streak: true, sound: true, off: [] }, store.get('kt_settings', {})),
+  sel: null, targeting: null, busy: false, hitAt: {}, actAt: {}, impText: '', impMode: 'add', impMsg: null, confirmClear: false, quitAsk: false, enc: 'auto', bytes: null, fname: '',
+  quiz: null, reward: null, finishing: false, copied: '', mode: 'classic', sub: null, lbTab: 'online', delAsk: '',
+};
+function loadBank() {
+  const b = store.get('kt_bank_v1', null);
+  S.bank = Array.isArray(b) && b.length ? b : SAMPLE_BANK.map(q => Object.assign({}, q));
+}
+const saveBank = () => store.set('kt_bank_v1', S.bank);
+const saveSettings = () => store.set('kt_settings', S.settings);
+const enabledSet = () => { const off = new Set(S.settings.off); const subs = new Set(S.bank.map(q => q.subject || '未分類').filter(s => !off.has(s))); return subs.size ? subs : null; };
+const subjects = () => { const m = new Map(); for (const q of S.bank) { const s = q.subject || '未分類'; m.set(s, (m.get(s) || 0) + 1); } return m; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- 題目匯入 ---------- */
+const DIFFMAP = { '1': 1, '2': 2, '3': 3, '簡單': 1, '易': 1, '基礎': 1, 'easy': 1, '普通': 2, '一般': 2, '中等': 2, '中': 2, 'medium': 2, '困難': 3, '難': 3, '進階': 3, 'hard': 3 };
+const normDiff = v => DIFFMAP[String(v == null ? '' : v).trim().toLowerCase()] || 0;
+function parseRows(text, delim) {
+  const rows = []; let row = [], cur = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else inQ = false; } else cur += c;
+    } else if (c === '"' && cur === '') inQ = true;
+    else if (c === delim) { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur); cur = ''; if (row.some(x => x.trim() !== '')) rows.push(row); row = []; }
+    else cur += c;
+  }
+  row.push(cur); if (row.some(x => x.trim() !== '')) rows.push(row);
+  return rows;
+}
+function resolveAnswer(a, cells, opts, map) {
+  const s = String(a == null ? '' : a).trim();
+  if (!s) return -1;
+  if (/^[A-Fa-f]$/.test(s)) { const p = s.toUpperCase().charCodeAt(0) - 65; return p in map ? map[p] : -1; }
+  const ti = opts.findIndex(o => o === s);
+  if (ti >= 0) return ti;
+  if (/^[1-6]$/.test(s)) { const p = +s - 1; return p in map ? map[p] : -1; }
+  return -1;
+}
+function buildQ(q, cells, ansRaw, subject, diff, exp, lineNo, errors, idp) {
+  q = (q || '').trim();
+  if (!q) { errors.push(`第 ${lineNo} 列：沒有題目`); return null; }
+  const opts = [], map = {};
+  cells.forEach((c, i) => { const t = String(c == null ? '' : c).trim(); if (t) { map[i] = opts.length; opts.push(t); } });
+  if (opts.length < 2) { errors.push(`第 ${lineNo} 列：至少要有 2 個選項`); return null; }
+  if (opts.length > 6) { errors.push(`第 ${lineNo} 列：最多 6 個選項`); return null; }
+  const ans = resolveAnswer(ansRaw, cells, opts, map);
+  if (ans < 0) { errors.push(`第 ${lineNo} 列：答案「${ansRaw}」對不到任何選項`); return null; }
+  return { id: idp + lineNo, q, opts, ans, subject: (subject || '').trim() || '未分類', diff: normDiff(diff), exp: (exp || '').trim() };
+}
+function parseQuestions(raw) {
+  const t = String(raw || '').replace(/^﻿/, '').trim();
+  const errors = [], items = [], idp = 'u' + Date.now().toString(36) + '_';
+  if (!t) return { items, errors: ['內容是空的'] };
+  if (t[0] === '[' || t[0] === '{') {
+    let data;
+    try { data = JSON.parse(t); } catch (e) { return { items, errors: ['JSON 格式有誤：' + e.message] }; }
+    if (!Array.isArray(data)) data = data.questions || data.題目 || [];
+    data.forEach((o, i) => {
+      let cells = o.options || o.choices || o.opts || o['選項'];
+      if (!Array.isArray(cells)) cells = ['A', 'B', 'C', 'D', 'E', 'F'].map(k => o[k] != null ? o[k] : o['選項' + k]).filter(x => x != null);
+      let a = o.answer != null ? o.answer : o.ans != null ? o.ans : o['答案'];
+      if (typeof a === 'number') a = String.fromCharCode(65 + a);
+      const it = buildQ(o.q || o.question || o['題目'] || o['題幹'], cells, a, o.subject || o['科目'], o.difficulty || o.level || o['難度'], o.explanation || o.exp || o['解析'], i + 1, errors, idp);
+      if (it) items.push(it);
+    });
+    return { items, errors };
+  }
+  const first = t.split(/\r?\n/)[0];
+  const delim = first.includes('\t') ? '\t' : ',';
+  const rows = parseRows(t, delim);
+  if (!rows.length) return { items, errors: ['讀不到任何列'] };
+  const head = rows[0].map(x => x.trim());
+  const hasHead = /^(題目|題幹|question|q)$/i.test(head[0]);
+  let col = { q: 0, opts: [1, 2, 3, 4], ans: 5, sub: 6, diff: 7, exp: 8 };
+  if (hasHead) {
+    col = { q: -1, opts: [], ans: -1, sub: -1, diff: -1, exp: -1 };
+    head.forEach((h, i) => {
+      if (/^(題目|題幹|question|q)$/i.test(h)) col.q = i;
+      else if (/^(答案|正解|解答|answer|ans)$/i.test(h)) col.ans = i;
+      else if (/^(科目|類別|subject|category)$/i.test(h)) col.sub = i;
+      else if (/^(難度|level|difficulty)$/i.test(h)) col.diff = i;
+      else if (/^(解析|說明|explanation|exp)$/i.test(h)) col.exp = i;
+      else { const m = h.match(/^(?:選項|option)?\s*([A-F1-6])$/i); if (m) col.opts.push(i); }
+    });
+    if (col.q < 0 || col.ans < 0 || col.opts.length < 2) return { items, errors: ['標題列要有：題目、選項A、選項B…、答案'] };
+  }
+  rows.slice(hasHead ? 1 : 0).forEach((r, i) => {
+    const line = i + (hasHead ? 2 : 1);
+    const g = k => (k >= 0 && k < r.length ? r[k] : '');
+    const cells = col.opts.map(k => g(k));
+    const it = buildQ(g(col.q), cells, g(col.ans), g(col.sub), g(col.diff), g(col.exp), line, errors, idp);
+    if (it) items.push(it);
+  });
+  return { items, errors };
+}
+function bankToCSV() {
+  const q = v => /[",\n\t]/.test(v) ? '"' + String(v).replace(/"/g, '""') + '"' : v;
+  const lines = ['題目,選項A,選項B,選項C,選項D,答案,科目,難度,解析'];
+  for (const b of S.bank) {
+    const o = b.opts.slice(0, 4); while (o.length < 4) o.push('');
+    lines.push([b.q, ...o, String.fromCharCode(65 + b.ans), b.subject, b.diff || '', b.exp || ''].map(x => q(String(x))).join(','));
+  }
+  return lines.join('\n');
+}
+const CSV_SAMPLE = '題目,選項A,選項B,選項C,選項D,答案,科目,難度,解析\n8 + 7 = ?,13,14,15,16,C,數學,1,8 加 7 等於 15\n「快樂」的反義詞是？,難過,開心,高興,歡喜,A,國語,1,\nWhat color is the sky?,Red,Blue,Green,Black,B,英語,1,天空是藍色';
+const JSON_SAMPLE = '[\n  {"題目":"6 × 7 = ?","選項":["36","42","48","49"],"答案":"B","科目":"數學","難度":1,"解析":"七六四十二"}\n]';
+
+/* ---------- 畫面切換 ---------- */
+function go(screen) { if (S.screen === 'leaderboard' && screen !== 'leaderboard') unsubLB(); S.screen = screen; S.sel = null; S.targeting = null; render(); const sc = app.querySelector('.screen'); if (sc) sc.scrollTop = 0; }
+function render() {
+  switch (S.screen) {
+    case 'title': return renderTitle();
+    case 'settings': return renderSettings();
+    case 'help': return renderHelp();
+    case 'leaderboard': return renderLB();
+    case 'name': return renderName();
+    case 'class': return renderClass();
+    case 'battle': return renderBattle(true);
+    case 'reward': return renderReward();
+    case 'end': return renderEnd();
+  }
+}
+
+
+/* ---------- 遊戲說明 ---------- */
+function helpHTML() {
+  return `<div class="help">
+    <section><h3>目標</h3><p>從第 1 關一路打到第 10 關。第 5 關有菁英怪（比較強的敵人），第 10 關是最後的 BOSS 知識巨龍。每打贏一關可以拿一張新牌，牌組會越來越強。</p></section>
+    <section><h3>最重要的規則：答對才能出牌</h3>
+      <ol>
+        <li>點一下手牌，牌會抬起來。</li>
+        <li>再點一次同一張牌，就會跳出一題選擇題。</li>
+        <li><b>答對</b>：牌的效果發動。<b>答錯</b>：能量照樣扣掉，但效果不會發動，牌放回棄牌堆。</li>
+        <li>如果攻擊牌要選目標，答題前先點你要打的敵人。</li>
+      </ol>
+      <p class="note">用鍵盤也可以：按 1–4 或 A–D 選答案，Enter 繼續。</p></section>
+    <section><h3>一個回合怎麼玩</h3>
+      <ol>
+        <li>每回合有 <b>3 點能量</b>，抽 5 張牌。牌左上角的數字是要花的能量。</li>
+        <li>能量用完、或不想再出牌，就按右下角的「<b>結束回合</b>」。</li>
+        <li>剩下的手牌會丟掉，換敵人行動，然後你再抽 5 張新牌。</li>
+        <li>每回合最多出 8 張牌。</li>
+      </ol></section>
+    <section><h3>看懂畫面</h3>
+      <ul>
+        <li><b>生命</b>：紅色血條。歸零就輸了。</li>
+        <li><b>護甲</b>（藍色盾牌）：先擋掉傷害，每回合開始會消失。</li>
+        <li><b>敵人頭上的圖示</b>：它下一步要做什麼。${icon('sword', 16)} 是攻擊（數字是傷害，×2 代表連打兩下），${icon('shield', 16)} 是替自己加護甲，${icon('up', 16)} 是變強，${icon('down', 16)} 是讓你變虛弱或脆弱。</li>
+        <li><b>連對 n/3</b>：連續答對 3 題後，下一張牌的傷害或護甲 +2。答錯會歸零。</li>
+        <li>點「抽牌堆」「棄牌堆」可以看裡面有哪些牌。</li>
+      </ul></section>
+    <section><h3>三種牌</h3>
+      <ul>
+        <li><b style="color:var(--t-attack)">攻擊</b>：打敵人。</li>
+        <li><b style="color:var(--t-skill)">技能</b>：加護甲、抽牌、讓敵人變弱等。</li>
+        <li><b style="color:var(--t-power)">能力</b>：打出一次，這場戰鬥一直有效。</li>
+        <li>牌上寫「<b>消耗</b>」代表打出後，這場戰鬥就不會再出現。</li>
+      </ul></section>
+    <section><h3>狀態</h3>
+      <ul>
+        <li><b>力量</b>：每次攻擊多 N 點傷害。</li>
+        <li><b>虛弱</b>：造成的傷害少 25%。<b>脆弱</b>：受到的傷害多 50%。數字是剩下幾回合。</li>
+        <li><b>毒</b>：敵人回合開始扣 N 點血（不管護甲），然後毒少 1 層。</li>
+        <li><b>灼燒</b>：同樣是回合開始扣 N 點血，然後少 2 層。</li>
+        <li><b>標記</b>（弓箭手）：目標每被打一下，多受 N 點傷害，回合結束少 1 層。</li>
+        <li><b>魔力</b>（法師）：只會累積、不會消失，最多 10，要用魔力的牌會把它花掉。</li>
+      </ul></section>
+    <section><h3>四個職業</h3>
+      <ul>
+        <li><b style="color:var(--c-warrior)">戰士</b>：血最多，靠護甲和力量，最容易上手。</li>
+        <li><b style="color:var(--c-mage)">法師</b>：血少，但魔力和灼燒可以一次打很多敵人。</li>
+        <li><b style="color:var(--c-archer)">弓箭手</b>：先標記，再用多段攻擊打出高傷害。</li>
+        <li><b style="color:var(--c-rogue)">盜賊</b>：把毒疊高，敵人會自己扣血，適合 0 費牌連打。</li>
+      </ul></section>
+    <section><h3>排行榜模式</h3>
+      <ul>
+        <li>一共 <b>50 關</b>，每 5 關有一隻菁英，第 50 關是 BOSS。敵人會越來越強。</li>
+        <li>每關過後<b>二選一</b>：回復 20% 生命，或選一張新牌。</li>
+        <li>規則是固定的（難度和連對加成都一樣），所以成績可以互相比較。</li>
+        <li>排名看<b>通過的關卡數</b>，越多越前面。50 關全部通過的，再比答對率。</li>
+        <li>成績在遊戲結束時才會記錄，中途離開不算。要登入 claude.ai 並由老師分享頁面，成績才會上傳到線上排行榜。</li>
+      </ul></section>
+    <section><h3>小技巧</h3>
+      <ul>
+        <li>先看敵人的意圖：它要打很痛的一下，就先出防禦牌。</li>
+        <li>不確定答案時，先想一想再選，連對可以得到加成。</li>
+        <li>拿新牌時不一定要拿，牌組太雜反而不容易抽到好牌。</li>
+        <li>答錯時看一下正確答案，結束後還有答錯題目的整理。</li>
+      </ul></section>
+  </div>`;
+}
+function renderHelp() {
+  const first = S.helpNext;
+  app.innerHTML = `<div class="screen"><div class="topbar"><button class="btn small ghost" data-act="home">← 回首頁</button><h2>遊戲說明</h2></div>
+    ${helpHTML()}
+    <div class="row" style="justify-content:center;margin-top:18px">${first ? '<button class="btn primary" data-act="help-go">我知道了，開始遊戲</button>' : '<button class="btn" data-act="home">回首頁</button>'}</div></div>`;
+}
+
+/* ---------- 首頁 ---------- */
+const TOWER = `<svg class="tower" viewBox="0 0 120 200" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+<path d="M34 62V42h10v8h8v-8h16v8h8v-8h10v20z"/><path d="M40 62l-3 128M80 62l3 128"/><path d="M60 42V12"/><path d="M60 12l22 8-22 8"/>
+<path d="M55 98a5 5 0 0 1 10 0v14H55zM55 136a5 5 0 0 1 10 0v14H55z"/><path d="M52 190v-22a8 8 0 0 1 16 0v22"/><path d="M8 190h104"/>
+<path d="M38 82h10M72 120h9M40 150h8M74 168h8" opacity=".6"/><path d="M14 30h6M17 27v6M100 54h5M102.500 51.500v5" opacity=".7"/></svg>`;
+function renderTitle() {
+  app.innerHTML = `<div class="screen title-screen">
+    ${TOWER}
+    <h1>知識尖塔</h1>
+    <svg class="underline-chalk" viewBox="0 0 280 10" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M4 6c30-5 60 3 90-1s60 3 90-1 60 2 92-1"/></svg>
+    <p class="sub">答對題目，卡牌才會發動</p>
+    <div class="stack">
+      <button class="btn primary" data-act="start">開始遊戲</button>
+      <button class="btn rank" data-act="start-rank">排行榜模式</button>
+      <div class="row" style="justify-content:center"><button class="btn ghost" data-act="lb">排行榜</button><button class="btn ghost" data-act="help">遊戲說明</button><button class="btn ghost" data-act="settings">遊戲設定</button></div>
+    </div>
+    <p class="bankline">目前題庫共 ${S.bank.length} 題${S.bank.every(q => q.sample) ? '（內建範例題）' : ''}</p>
+    <p class="credit">偉維老師製</p>
+  </div>`;
+}
+
+/* ---------- 遊戲設定 ---------- */
+function renderSettings() {
+  setTimeout(() => { const e = $('#imp-enc'); if (e) e.value = S.enc; }, 0);
+  const subs = subjects(), off = new Set(S.settings.off);
+  const enabledCount = S.bank.filter(q => !off.has(q.subject || '未分類')).length;
+  const m = S.impMsg;
+  const dc = [0, 0, 0, 0]; S.bank.forEach(q => dc[q.diff || 0]++);
+  app.innerHTML = `<div class="screen">
+    <div class="topbar"><button class="btn small ghost" data-act="home">← 回首頁</button><h2>遊戲設定</h2></div>
+    <div class="grid2">
+      <section class="panel">
+        <h3>匯入題目</h3>
+        <div class="field">
+          <label for="imp-text" class="note">貼上題目（CSV、從 Excel 或試算表複製、或 JSON 都可以）</label>
+          <textarea id="imp-text" placeholder="${esc(CSV_SAMPLE)}" spellcheck="false">${esc(S.impText)}</textarea>
+          <label class="note" for="imp-file">或選擇檔案（.csv .txt .tsv .json）</label>
+          <input id="imp-file" type="file" accept=".csv,.txt,.tsv,.json,text/csv,text/plain,application/json">
+          <div class="row"><label class="note" for="imp-enc">檔案編碼</label><select id="imp-enc" style="background:rgba(0,0,0,.28);color:var(--chalk);border:2px solid var(--chalk-3);border-radius:8px;padding:6px 8px;font:inherit"><option value="auto">自動判斷</option><option value="utf-8">UTF-8</option><option value="big5">Big5（繁體 Excel）</option><option value="gbk">GBK（簡體）</option></select><span class="note">讀進來是亂碼時，改選另一種</span></div>
+          <div class="row" role="group" aria-label="匯入方式">
+            <div class="seg"><button data-act="imp-mode" data-v="add" aria-pressed="${S.impMode === 'add'}">加入現有題庫</button><button data-act="imp-mode" data-v="replace" aria-pressed="${S.impMode === 'replace'}">取代全部</button></div>
+            <button class="btn small" data-act="imp-go">匯入</button>
+          </div>
+        </div>
+        ${m ? `<div class="msg ${m.ok ? 'ok' : 'err'}" role="status">${esc(m.text)}${m.list && m.list.length ? `<ul>${m.list.slice(0, 40).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>` : ''}
+      </section>
+      <section class="panel">
+        <h3>題庫</h3>
+        <p class="note">共 <b>${S.bank.length}</b> 題，目前會出的有 <b>${enabledCount}</b> 題。難度 1 / 2 / 3 / 未標：${dc[1]} / ${dc[2]} / ${dc[3]} / ${dc[0]}</p>
+        <p class="note" style="margin:8px 0 6px">點科目可以暫時不出那一科：</p>
+        <div class="chips">${[...subs].map(([s, n]) => `<button class="chip" data-act="subj" data-v="${esc(s)}" aria-pressed="${!off.has(s)}">${esc(s)} ${n}</button>`).join('') || '<span class="note">（題庫是空的）</span>'}</div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn small ghost" data-act="bank-sample">還原內建範例題</button>
+          <button class="btn small danger" data-act="bank-clear">${S.confirmClear ? '再按一次確認清空' : '清空題庫'}</button>
+        </div>
+      </section>
+      <section class="panel">
+        <h3>遊戲選項</h3>
+        <div class="field" style="gap:12px">
+          <div><div class="note" style="margin-bottom:6px">難度（影響敵人血量與傷害）</div>
+            <div class="seg" role="group" aria-label="難度">${[['easy', '輕鬆'], ['normal', '普通'], ['hard', '挑戰']].map(([k, n]) => `<button data-act="diff" data-v="${k}" aria-pressed="${S.settings.diff === k}">${n}</button>`).join('')}</div></div>
+          <label class="tog"><input type="checkbox" id="opt-streak" ${S.settings.streak ? 'checked' : ''}> 連續答對 3 題，下一張牌傷害或護甲 +2</label>
+          <label class="tog"><input type="checkbox" id="opt-sound" ${S.settings.sound ? 'checked' : ''}> 音效</label>
+        </div>
+      </section>
+      <section class="panel">
+        <h3>題庫備份</h3>
+        <p class="note">題目只存在這個瀏覽器裡。換電腦或清除瀏覽資料前，先複製起來存成 .csv 或貼到記事本。</p>
+        <div class="row" style="margin-top:10px"><button class="btn small" data-act="copy-bank">${S.copied === 'bank' ? '已複製' : '複製題庫（CSV）'}</button></div>
+      </section>
+      <section class="panel full">
+        <h3>題目格式</h3>
+        <p class="note">每一題一列，欄位用逗號（或 Tab）分開。第一列寫標題。選項可以是 2 到 6 個，空白的選項會略過。</p>
+        <div class="tablewrap" style="margin-top:8px"><table class="cols"><thead><tr><th>欄位</th><th>說明</th></tr></thead><tbody>
+          <tr><th>題目</th><td>必填</td></tr>
+          <tr><th>選項A～選項D</th><td>必填至少 2 個。遊戲裡選項順序會自動打亂</td></tr>
+          <tr><th>答案</th><td>必填。寫 A、B、C、D，或直接寫選項文字</td></tr>
+          <tr><th>科目</th><td>選填。例如 數學、國語。可在上方依科目開關</td></tr>
+          <tr><th>難度</th><td>選填。1 簡單、2 中等、3 困難。普通牌出 1、罕見牌出 2、稀有牌出 3 的題目</td></tr>
+          <tr><th>解析</th><td>選填。答錯時會顯示</td></tr></tbody></table></div>
+        <details style="margin-top:8px"><summary>看範例（CSV）</summary><pre class="sample">${esc(CSV_SAMPLE)}</pre><button class="btn small ghost" data-act="copy-sample">${S.copied === 'sample' ? '已複製' : '複製這段範例'}</button></details>
+        <details><summary>看範例（JSON）</summary><pre class="sample">${esc(JSON_SAMPLE)}</pre><p class="note">JSON 的「答案」可以寫 A～D、選項文字，或從 0 開始的數字。</p></details>
+      </section>
+      <section class="panel full">
+        <h3>目前的題目</h3>
+        <p class="note">${S.bank.length > 100 ? `只顯示前 100 題，共 ${S.bank.length} 題。` : '按 ✕ 可以刪掉那一題。'}</p>
+        <ul class="qlist">${S.bank.slice(0, 100).map(q => `<li><span class="qt">${esc(q.q)} <span class="tag">答：${esc(q.opts[q.ans])}</span></span><span class="tag">${esc(q.subject)}${q.diff ? ' · 難度' + q.diff : ''}</span><button data-act="del-q" data-id="${esc(q.id)}" aria-label="刪除這題">✕</button></li>`).join('')}</ul>
+      </section>
+    </div></div>`;
+}
+
+/* ---------- 名字 / 職業 ---------- */
+function renderName() {
+  app.innerHTML = `<div class="screen"><div class="center-col">
+    <h2>${S.mode === 'rank' ? '你的暱稱是？' : '你的名字是？'}</h2>
+    ${S.mode === 'rank' ? '<p class="note" style="color:var(--chalk-2)">排行榜模式的暱稱會顯示給所有玩家看，請不要用全名。<br>50 關、敵人會越來越強；每關過後二選一：回復 20% 生命，或拿一張新牌。</p>' : ''}
+    <input id="inp-name" class="name-input" type="text" maxlength="10" placeholder="寫下你的名字" value="${esc(S.name)}" autocomplete="off" aria-label="名字">
+    <div class="row" style="justify-content:center"><button class="btn small ghost" data-act="home">← 返回</button><button class="btn primary" data-act="name-ok">下一步</button></div>
+  </div></div>`;
+  setTimeout(() => { const i = $('#inp-name'); if (i) i.focus(); }, 30);
+}
+const CLS_COLOR = { warrior: 'var(--c-warrior)', mage: 'var(--c-mage)', archer: 'var(--c-archer)', rogue: 'var(--c-rogue)' };
+function renderClass() {
+  app.innerHTML = `<div class="screen">
+    <div class="topbar"><button class="btn small ghost" data-act="back-name">← 返回</button><h2>${esc(S.name)}，選擇你的職業</h2></div>
+    <div class="classes">${Object.entries(CLASSES).map(([k, c]) => `
+      <button class="cls" data-act="pick-cls" data-cls="${k}" style="--cc:${CLS_COLOR[k]}" aria-pressed="${S.cls === k}">
+        <span class="head"><span class="ava">${icon(c.icon, 32)}</span><span><h3>${c.name}</h3><span class="tag" style="display:block">${c.tag}</span></span></span>
+        <span class="hp" style="display:block">生命 ${c.hp}</span>
+        <span class="blurb" style="display:block">${c.blurb}</span>
+        <span class="traits" style="display:block">特色：${c.traits}</span>
+        <span class="rates">${Object.entries(c.rate).map(([n, v]) => `<span>${n}</span><span class="dots">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= v ? 'on' : ''}"></i>`).join('')}</span>`).join('')}</span>
+        <span class="starter">起始牌組：打擊×4　防禦×4　專屬×2（${CARDS[k + '_base'].name}）</span>
+      </button>`).join('')}</div>
+    <div class="row" style="justify-content:center"><button class="btn primary" data-act="go-start" ${S.cls ? '' : 'disabled'}>${S.cls ? `選${CLASSES[S.cls].name}，出發！` : '先選一個職業'}</button></div>
+  </div>`;
+}
+
+/* ---------- 卡牌 ---------- */
+function cardHTML(card, o = {}) {
+  const inst = typeof card === 'string' ? { id: card } : card;
+  const def = CARDS[inst.id];
+  let cost = def.cost < 0 ? 'X' : def.cost;
+  if (o.live && B) { const c = costOf(inst); cost = c < 0 ? 'X' : c; }
+  const tag = o.tag || 'div';
+  const cls = ['card', 't-' + def.type, 'r-' + def.rarity, def.power ? 'pwr' : '', o.size || '', o.sel ? 'sel' : '', o.dis ? 'dis' : '', o.chosen ? 'chosen' : '', o.extra || ''].filter(Boolean).join(' ');
+  const attrs = (o.attrs || '') + (o.style ? ` style="${o.style}"` : '');
+  const aria = `${def.name}，${TYPE_ZH[def.type]}，費用 ${cost}，${def.desc}`;
+  return `<${tag} class="${cls}" ${tag === 'button' ? 'type="button"' : ''} aria-label="${esc(aria)}" ${attrs}>
+    <span class="cost">${cost}</span><span class="cname">${esc(def.name)}</span>
+    <span class="art">${icon(artFor(def), o.size === 'mini' ? 22 : 30, 1.7)}</span>
+    <span class="ctype">${TYPE_ZH[def.type]}</span><span class="cdesc">${esc(def.desc)}</span><i class="rar"></i></${tag}>`;
+}
+
+/* ---------- 戰鬥畫面 ---------- */
+function startRun() {
+  newRun(S.cls, S.name, { diff: S.settings.diff, streak: S.settings.streak, mode: S.mode }); S.sub = null;
+  S.used = new Set(); S.finishing = false; S.quitAsk = false; S.hitAt = {}; S.actAt = {};
+  startBattle();
+  go('battle');
+}
+function routeHTML() {
+  if (G.mode === 'rank') return `<div class="rbar" title="第 ${G.floor + 1} / ${G.floors.length} 關"><i style="width:${Math.round(G.floor / G.floors.length * 100)}%"></i></div>`;
+  return G.floors.map((fl, i) => {
+    const st = i < G.floor ? 'done' : i === G.floor ? 'now' : '';
+    return `<i class="${fl.tier === 'normal' ? '' : fl.tier} ${st}" title="第 ${i + 1} 關"></i>`;
+  }).join('');
+}
+function intentHTML(e) {
+  const m = e.intent, parts = [];
+  if (m.d) { const d = enemyDamage(e, m.d); parts.push(`${icon('sword', 16)} ${d}${m.t ? '×' + m.t : ''}`); }
+  if (m.b) parts.push(`${icon('shield', 16)} ${m.b}`);
+  if (m.str) parts.push(`${icon('up', 16)} 力量`);
+  if (m.debuff) parts.push(`${icon('down', 16)} ${m.debuff[0] === 'weak' ? '虛弱' : '脆弱'}`);
+  const sp = !m.d;
+  return `<div class="intent ${sp ? 'sp' : ''}" title="下一步行動">${parts.join(' ')}</div>`;
+}
+function statChips(o, isFoe) {
+  const c = [];
+  if (o.block > 0) c.push(`<span class="stat blk" title="護甲">${icon('shield', 14)} ${o.block}</span>`);
+  if (o.str) c.push(`<span class="stat good" title="力量">力量 ${o.str}</span>`);
+  if (!isFoe && o.tempStr) c.push(`<span class="stat good" title="本回合力量">本回合力量 +${o.tempStr}</span>`);
+  if (o.weak > 0) c.push(`<span class="stat bad" title="虛弱：造成的傷害 -25%">虛弱 ${o.weak}</span>`);
+  if (o.vuln > 0) c.push(`<span class="stat bad" title="脆弱：受到的傷害 +50%">脆弱 ${o.vuln}</span>`);
+  if (isFoe) {
+    if (o.poison > 0) c.push(`<span class="stat bad" title="毒：回合開始扣血，之後 -1">毒 ${o.poison}</span>`);
+    if (o.burn > 0) c.push(`<span class="stat warn" title="灼燒：回合開始扣血，之後 -2">灼燒 ${o.burn}</span>`);
+    if (o.mark > 0) c.push(`<span class="stat warn" title="標記：每次被攻擊多受 ${o.mark} 點傷害，回合結束減少 1 層">標記 ${o.mark}（每下 +${o.mark}）</span>`);
+  }
+  return c.join('');
+}
+function renderBattle(force) {
+  if (S.screen !== 'battle' || !B) return;
+  if (force || !$('.battle')) {
+    app.innerHTML = `<div class="battle">
+      <header class="hud"><button class="btn small ghost" data-act="deck">牌組</button><button class="btn small ghost" data-act="help-pop">說明</button><div class="route" id="route" aria-label="關卡進度"></div><span class="who" id="who"></span><span class="grow"></span><button class="btn small ghost" data-act="quit" id="quitbtn">離開</button></header>
+      <main class="arena" id="arena"><div class="pbox" id="pbox"></div><div class="foes" id="foes"></div></main>
+      <div class="tray" id="tray"><div class="left" id="left"></div><div class="hand" id="hand"></div><div class="side" id="side"></div></div>
+    </div>`;
+  }
+  const c = CLASSES[G.cls], now = Date.now();
+  $('#route').innerHTML = routeHTML();
+  { const fl = G.floors[G.floor]; $('#who').textContent = `${G.mode === 'rank' ? '【排行榜】' : ''}第 ${G.floor + 1} / ${G.floors.length} 關${fl.tier === 'elite' ? '【菁英】' : fl.tier === 'boss' ? '【BOSS】' : ''}　${B.enemies.map(e => e.name).join('、')}`; }
+  $('#quitbtn').textContent = S.quitAsk ? '確定離開？' : '離開';
+  /* 敵人 */
+  $('#foes').innerHTML = B.enemies.map((e, i) => `
+    <div class="foe ${e.tier} ${e.hp <= 0 ? 'dead' : ''} ${S.targeting && e.hp > 0 ? 'targetable' : ''} ${now - (S.hitAt[i] || 0) < 380 ? 'hit' : ''} ${now - (S.actAt[i] || 0) < 380 ? 'acting' : ''}" data-i="${i}" ${S.targeting && e.hp > 0 ? 'data-act="foe" role="button" tabindex="0"' : ''}>
+      ${e.hp > 0 && B.phase !== 'enemy' ? intentHTML(e) : '<div class="intent" style="visibility:hidden">·</div>'}
+      <div class="sprite" aria-hidden="true">${e.sprite}${e.hp > 0 && e.mark > 0 ? `<span class="markbadge" title="標記 ${e.mark}：每次被攻擊多受 ${e.mark} 點傷害">${icon('target', 22, 2.2)}<b>${e.mark}</b></span>` : ''}</div>
+      <div class="fname">${e.name}</div>
+      <div class="bar foe-bar"><i style="width:${Math.round(e.hp / e.maxHp * 100)}%"></i><b>${e.hp} / ${e.maxHp}</b></div>
+      <div class="statline">${statChips(e, true)}</div>
+    </div>`).join('');
+  /* 玩家 */
+  const pb = $('#pbox');
+  pb.className = 'pbox' + (now - (S.hitAt.p || 0) < 380 ? ' hit' : '');
+  pb.style.setProperty('--cc', CLS_COLOR[G.cls]);
+  pb.innerHTML = `<div class="ava">${icon(c.icon, 44)}</div><div class="pname">${esc(G.name)}・${c.name}</div>
+    <div class="bar"><i style="width:${Math.max(0, Math.round(G.hp / G.maxHp * 100))}%"></i><b>${Math.max(0, G.hp)} / ${G.maxHp}</b></div>
+    <div class="statline">${statChips(B.p, false)}
+      ${G.cls === 'mage' || B.p.mana > 0 ? `<span class="stat mana" title="魔力：不會消失，上限 ${MANA_MAX}">${icon('crystal', 14)} 魔力 ${B.p.mana}</span>` : ''}
+      ${G.opts.streak ? `<span class="stat streak" title="連續答對 3 題，下一張牌 +2">連對 ${Math.min(G.streak, 3)}/3</span>` : ''}
+      <span class="stat" title="每回合最多出 ${MAX_PLAY} 張">出牌 ${B.t.plays || 0}/${MAX_PLAY}</span></div>`;
+  /* 手牌 */
+  const hand = $('#hand'), sl = hand.scrollLeft, n = B.hand.length;
+  hand.className = 'hand' + (n ? '' : ' empty');
+  hand.innerHTML = B.hand.map((card, i) => {
+    const can = canPlay(card);
+    return cardHTML(card, { tag: 'button', live: true, sel: S.sel === card.uid, dis: !can.ok, attrs: `data-act="card" data-uid="${card.uid}"`, style: `--rot:${((i - (n - 1) / 2) * 1.4).toFixed(2)}deg` });
+  }).join('');
+  hand.scrollLeft = sl;
+  const selCard = S.sel && B.hand.find(x => x.uid === S.sel);
+  $('#left').innerHTML = `<div class="orb" title="能量">${B.p.energy}<small>能量</small></div><button class="pilebtn" data-act="pile" data-v="draw">抽牌堆 ${B.draw.length}</button>`;
+  $('#side').innerHTML = `<button class="btn endturn" data-act="end" ${B.phase === 'player' && !S.busy ? '' : 'disabled'}>結束回合</button><button class="pilebtn" data-act="pile" data-v="discard">棄牌堆 ${B.discard.length}</button>${B.exhaust.length ? `<button class="pilebtn" data-act="pile" data-v="exhaust">消耗 ${B.exhaust.length}</button>` : ''}`;
+  const old = $('.hint'); if (old) old.remove();
+  if (S.targeting) $('#tray').insertAdjacentHTML('afterbegin', `<div class="hint">點選要打的敵人　<button class="link" style="color:#2a2a18" data-act="cancel-target">取消</button></div>`);
+  else if (selCard) $('#tray').insertAdjacentHTML('afterbegin', `<div class="hint">再點一次「${esc(CARDS[selCard.id].name)}」出牌，答對才會發動</div>`);
+}
+
+/* 浮動數字與音效 */
+function floatAt(el, text, cls) {
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  const f = document.createElement('div');
+  f.className = 'float ' + cls; f.textContent = text;
+  f.style.left = (r.left + r.width / 2) + 'px'; f.style.top = (r.top + r.height * .25) + 'px';
+  document.body.appendChild(f); setTimeout(() => f.remove(), 1000);
+}
+ui.fx = (type, e, val) => {
+  if (S.screen !== 'battle') return;
+  if (type === 'dmg') { S.hitAt[e.i] = Date.now(); floatAt($(`.foe[data-i="${e.i}"] .sprite`), '−' + val, 'dmg'); sfx.hit(); }
+  else if (type === 'pdmg') { S.hitAt.p = Date.now(); floatAt($('#pbox .ava'), '−' + val, 'pdmg'); sfx.hit(); }
+  else if (type === 'heal') floatAt($('#pbox .ava'), '+' + val, 'heal');
+  else if (type === 'block') floatAt($('#pbox .ava'), '護甲 +' + val, 'block');
+  else if (type === 'act') S.actAt[e.i] = Date.now();
+};
+ui.wait = ms => wait(ms);
+ui.render = () => { if (S.screen === 'battle') renderBattle(false); };
+
+/* 回答問題 */
+ui.quiz = (card, def) => new Promise(resolve => {
+  const q = pickQuestion(S.bank, enabledSet(), def.rarity, S.used);
+  if (!q) { resolve(true); return; }
+  const order = shuffle([...q.opts.keys()]);
+  S.quiz = { q, order, resolve, answered: false, card, def, ok: null };
+  drawQuiz();
+});
+function drawQuiz() {
+  const z = S.quiz, m = $('#m-quiz');
+  const { q, order, def } = z;
+  const letters = 'ABCDEF';
+  const rarZh = { common: '普通牌', uncommon: '罕見牌', rare: '稀有牌', basic: '基礎牌', token: '衍生牌' }[def.rarity] || '';
+  m.innerHTML = `<div class="quiz" role="dialog" aria-modal="true" aria-labelledby="qtxt">
+    <div class="meta"><span class="tagc">出牌：${esc(def.name)}</span><span>${rarZh}</span>${q.subject && q.subject !== '未分類' ? `<span class="sub">${esc(q.subject)}</span>` : ''}${q.diff ? `<span>難度 ${q.diff}</span>` : ''}</div>
+    <div class="q" id="qtxt">${esc(q.q)}</div>
+    <div class="opts">${order.map((oi, k) => `<button class="opt ${z.answered ? (oi === q.ans ? 'right' : oi === z.picked ? 'wrong' : '') : ''}" data-act="ans" data-i="${oi}" ${z.answered ? 'disabled' : ''}><span class="ltr">${letters[k]}</span><span>${esc(q.opts[oi])}</span></button>`).join('')}</div>
+    ${z.answered ? `<div class="fb ${z.ok ? 'ok' : 'no'}" role="status">${z.ok ? '答對了！牌的效果發動！' : '答錯了，這張牌沒有發動。'}${!z.ok ? `<small>正確答案：${esc(q.opts[q.ans])}${q.exp ? '　' + esc(q.exp) : ''}</small>` : (q.exp ? `<small>${esc(q.exp)}</small>` : '')}</div>
+    <div class="go"><button class="btn small" data-act="quiz-next" id="quiz-next">繼續</button></div>` : '<p class="note" style="margin-top:14px;color:var(--ink-2);font-size:.88rem">按選項，或按鍵盤 1–4／A–D</p>'}
+  </div>`;
+  m.hidden = false;
+  const nb = $('#quiz-next'); if (nb) nb.focus();
+}
+function answerQuiz(oi) {
+  const z = S.quiz; if (!z || z.answered) return;
+  z.answered = true; z.picked = oi; z.ok = oi === z.q.ans;
+  if (z.ok) sfx.ok(); else {
+    sfx.bad();
+    G.missed.push({ q: z.q.q, ans: z.q.opts[z.q.ans], pick: z.q.opts[oi], exp: z.q.exp });
+  }
+  drawQuiz();
+  if (z.ok) z.timer = setTimeout(closeQuiz, 1100);
+}
+function closeQuiz() {
+  const z = S.quiz; if (!z) return;
+  clearTimeout(z.timer); S.quiz = null;
+  $('#m-quiz').hidden = true; $('#m-quiz').innerHTML = '';
+  z.resolve(z.ok);
+}
+
+/* 選牌彈窗 */
+ui.choose = spec => new Promise(resolve => {
+  const picked = new Set();
+  const m = $('#m-sheet');
+  const need = Math.min(spec.count, spec.cards.length);
+  const draw = () => {
+    m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><h3>${esc(spec.title)}</h3><div class="cardgrid">${spec.cards.map(c => cardHTML(c, { tag: 'button', chosen: picked.has(c.uid), attrs: `data-act="pick" data-uid="${c.uid}"` })).join('')}</div>
+      <div class="row" style="justify-content:flex-end"><span class="note">已選 ${picked.size} / ${need}</span><button class="btn small" data-act="choose-ok" ${picked.size === need ? '' : 'disabled'}>確定</button></div></div>`;
+    m.hidden = false;
+  };
+  S.choose = { picked, draw, done: () => { m.hidden = true; m.innerHTML = ''; S.choose = null; resolve(spec.cards.filter(c => picked.has(c.uid))); }, need };
+  draw();
+});
+
+function showPile(kind) {
+  let list, title;
+  if (kind === 'draw') { list = B.draw.slice().sort((a, b) => CARDS[a.id].name.localeCompare(CARDS[b.id].name, 'zh-Hant')); title = `抽牌堆（${list.length} 張，順序是隨機的）`; }
+  else if (kind === 'discard') { list = B.discard; title = `棄牌堆（${list.length} 張）`; }
+  else if (kind === 'exhaust') { list = B.exhaust; title = `本場消耗掉的牌（${list.length} 張）`; }
+  else { list = G.deck.map(id => ({ id })); title = `你的牌組（${list.length} 張）`; }
+  const m = $('#m-sheet');
+  m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><h3>${title}</h3><div class="cardgrid">${list.length ? list.map(c => cardHTML(c, { size: 'mini' })).join('') : '<p class="note">這裡沒有牌</p>'}</div><div class="row" style="justify-content:flex-end"><button class="btn small" data-act="close-sheet">關閉</button></div></div>`;
+  m.hidden = false;
+}
+
+function toast(t) {
+  const el = $('#toast'); el.textContent = t; el.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 1600);
+}
+
+/* ---------- 出牌流程 ---------- */
+async function tryPlay(uid, ti) {
+  if (S.busy || !B || B.over) return;
+  S.busy = true; S.sel = null; S.targeting = null;
+  renderBattle(false);
+  const res = await playCard(uid, ti);
+  S.busy = false;
+  if (res.err) toast(res.err);
+  renderBattle(false);
+  checkFinish();
+}
+async function doEndTurn() {
+  if (S.busy || !B || B.phase !== 'player') return;
+  S.busy = true; S.sel = null; S.targeting = null;
+  renderBattle(false);
+  await endPlayerTurn();
+  S.busy = false;
+  renderBattle(false);
+  checkFinish();
+}
+async function checkFinish() {
+  if (!B || !B.over || S.finishing) return;
+  S.finishing = true;
+  if (B.over === 'win') {
+    sfx.win(); await wait(850);
+    if (isLastFloor()) showEnd(true); else showReward();
+  } else { sfx.lose(); await wait(1000); showEnd(false); }
+}
+
+/* ---------- 獎勵 / 結算 ---------- */
+function showReward() {
+  if (G.mode === 'rank') { S.reward = { ids: rewardChoices(), rank: true, canHeal: G.hp < G.maxHp, preview: Math.min(Math.ceil(G.maxHp * .2), G.maxHp - G.hp) }; go('reward'); return; }
+  const heal = battleHeal();
+  S.reward = { ids: rewardChoices(), heal };
+  go('reward');
+}
+function renderReward() {
+  const r = S.reward;
+  if (r.rank) {
+    app.innerHTML = `<div class="screen"><div class="reward-wrap">
+      <h2>第 ${G.floor + 1} 關通過！</h2>
+      <p>二選一：回復生命，或選一張新牌。（目前生命 ${G.hp} / ${G.maxHp}）</p>
+      <button class="healopt" data-act="rank-heal" ${r.canHeal ? '' : 'disabled'}><b>回復 20% 生命</b><span>${r.canHeal ? `+${r.preview}　${G.hp} → ${G.hp + r.preview} / ${G.maxHp}` : '生命已經是滿的'}</span></button>
+      <p class="note">或者選一張新牌（拿了牌就不回血）</p>
+      <div class="cardgrid">${r.ids.map(id => cardHTML(id, { tag: 'button', size: 'big', extra: 'reward', attrs: `data-act="take" data-id="${id}"` })).join('')}</div>
+      <div class="row" style="justify-content:center"><button class="btn small ghost" data-act="deck">看目前牌組（${G.deck.length}）</button><button class="btn small" data-act="skip">都不要</button></div>
+    </div></div>`;
+    return;
+  }
+  app.innerHTML = `<div class="screen"><div class="reward-wrap">
+    <h2>戰鬥勝利！</h2>
+    <p>回復了 ${r.heal} 點生命（${G.hp} / ${G.maxHp}）。選一張新牌加入牌組，或直接跳過。</p>
+    <div class="cardgrid">${r.ids.map(id => cardHTML(id, { tag: 'button', size: 'big', extra: 'reward', attrs: `data-act="take" data-id="${id}"` })).join('')}</div>
+    <div class="row" style="justify-content:center"><button class="btn small ghost" data-act="deck">看目前牌組（${G.deck.length}）</button><button class="btn small" data-act="skip">跳過，不拿牌</button></div>
+  </div></div>`;
+}
+function nextFight() {
+  G.floor++; S.finishing = false; S.quitAsk = false; S.hitAt = {}; S.actAt = {};
+  startBattle(); go('battle');
+}
+function showEnd(win) {
+  S.win = win; S.sub = null;
+  if (G.mode === 'rank') submitRank();
+  go('end');
+}
+function subHTML() {
+  const x = S.sub; if (!x) return '';
+  const best = x.best ? (x.best.cleared >= RANK_FLOORS ? '50 關全破' : `通過 ${x.best.cleared} 關`) : '';
+  const m = {
+    sending: '正在上傳成績…',
+    nocloud: '這次成績只存在這台裝置。要上傳到線上排行榜，需要登入 claude.ai，並由老師把頁面分享給你。',
+    noperm: '你目前只有檢視權限，成績沒有上傳。請老師把你設成「可互動」（Contributor）。',
+    error: `成績上傳失敗（${esc(x.code || '')}）。成績已存在這台裝置，可以稍後再試。`,
+    done: x.improved ? `成績已上傳！你目前排第 <b>${x.rank || '?'}</b> 名（共 ${x.total} 人）。` : `這次沒有超過你的最佳成績（${best}），排行榜維持原本的紀錄。你目前排第 <b>${x.rank || '?'}</b> 名（共 ${x.total} 人）。`,
+  }[x.state] || '';
+  return `<div class="msg ${x.state === 'done' ? 'ok' : x.state === 'sending' ? '' : 'err'}" role="status" style="width:100%">${m}</div>`;
+}
+function renderEnd() {
+  const st = G.stats, acc = st.asked ? Math.round(st.correct / st.asked * 100) : 0, rank = G.mode === 'rank';
+  const cleared = S.win ? G.floors.length : G.floor;
+  const seen = new Set(), miss = G.missed.filter(m => !seen.has(m.q) && seen.add(m.q)).slice(0, 15);
+  app.innerHTML = `<div class="screen"><div class="reward-wrap">
+    <h2 style="color:${S.win ? 'var(--yellow)' : 'var(--pink)'}">${S.win ? (rank ? '50 關全破！' : '攻頂成功！') : '倒下了…'}</h2>
+    <p>${S.win ? `${esc(G.name)} 打敗了知識巨龍，登上尖塔頂端！` : `${esc(G.name)} 在第 ${G.floor + 1} 關倒下，${rank ? `一共通過 ${cleared} 關。` : '再試一次，會更強的！'}`}</p>
+    <div class="endstats"><div><b>${st.asked}</b><span>答題數</span></div><div><b>${acc}%</b><span>答對率</span></div><div><b>${st.maxStreak}</b><span>最長連對</span></div><div><b>${cleared}${rank ? ' / ' + G.floors.length : ''}</b><span>通過關卡</span></div></div>
+    ${rank ? subHTML() : ''}
+    ${miss.length ? `<div class="review"><h3>答錯的題目，再看一次</h3><ul>${miss.map(m => `<li>${esc(m.q)}<br>你選：<s>${esc(m.pick)}</s>　正確：<b>${esc(m.ans)}</b>${m.exp ? `<br><span class="note">${esc(m.exp)}</span>` : ''}</li>`).join('')}</ul></div>` : '<p class="note">這趟沒有答錯任何題目，太厲害了！</p>'}
+    <div class="row" style="justify-content:center"><button class="btn primary" data-act="again" style="font-size:1.3rem;padding:12px 34px">再玩一次</button>${rank ? '<button class="btn" data-act="lb">看排行榜</button>' : ''}<button class="btn ghost" data-act="home">回首頁</button></div>
+  </div></div>`;
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click', ev => {
+  const b = ev.target.closest('[data-act]');
+  if (!b) { if (S.screen === 'battle' && (S.sel || S.targeting) && !ev.target.closest('.hint') && !S.busy && !ev.target.closest('.modal')) { S.sel = null; S.targeting = null; renderBattle(false); } return; }
+  const a = b.dataset.act;
+  sfx.tap();
+  switch (a) {
+    case 'start-rank': S.mode = 'rank'; if (!store.get('kt_help_seen', false)) { S.helpNext = true; go('help'); } else go('name'); break;
+    case 'lb': openLB(); break;
+    case 'lb-tab': S.lbTab = b.dataset.v; S.delAsk = ''; renderLB(); break;
+    case 'lb-del': { const id = b.dataset.id; if (S.delAsk !== id) { S.delAsk = id; renderLB(); break; } S.delAsk = ''; if (LB.db) LB.db.doc('scores/' + id).delete().catch(() => toast('刪除失敗')); renderLB(); break; }
+    case 'rank-heal': if (S.reward && S.reward.rank && S.reward.canHeal) { healPct(.2); nextFight(); } break;
+    case 'start': S.mode = 'classic'; if (!store.get('kt_help_seen', false)) { S.helpNext = true; go('help'); } else go('name'); break;
+    case 'help': S.helpNext = false; go('help'); break;
+    case 'help-go': store.set('kt_help_seen', true); S.helpNext = false; go('name'); break;
+    case 'help-pop': { const m = $('#m-sheet'); m.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><h3>遊戲說明</h3>${helpHTML()}<div class="row" style="justify-content:flex-end"><button class="btn small" data-act="close-sheet">關閉</button></div></div>`; m.hidden = false; break; }
+    case 'settings': S.impMsg = null; go('settings'); break;
+    case 'home': S.quitAsk = false; S.helpNext = false; go('title'); break;
+    case 'name-ok': { const v = $('#inp-name').value.trim(); if (!v) { toast('請先寫下名字'); break; } S.name = v; store.set('kt_name', v); go('class'); break; }
+    case 'back-name': go('name'); break;
+    case 'pick-cls': S.cls = b.dataset.cls; renderClass(); break;
+    case 'go-start': if (S.cls) startRun(); break;
+    case 'imp-mode': S.impText = $('#imp-text').value; S.impMode = b.dataset.v; renderSettings(); break;
+    case 'imp-go': {
+      const text = $('#imp-text').value; S.impText = text;
+      const { items, errors } = parseQuestions(text);
+      if (!items.length) { S.impMsg = { err: true, text: '沒有讀到可用的題目。請檢查格式。', list: errors }; renderSettings(); break; }
+      let add = items;
+      if (S.impMode === 'replace') S.bank = items;
+      else {
+        const key = q => q.q + '|' + q.opts.join('|');
+        const have = new Set(S.bank.map(key)); add = items.filter(q => !have.has(key(q)));
+        if (S.bank.every(q => q.sample) && add.length) S.bank = [];
+        S.bank = S.bank.concat(add);
+      }
+      saveBank(); S.impText = '';
+      S.impMsg = { ok: true, text: `匯入成功：${add.length} 題${items.length !== add.length ? `（${items.length - add.length} 題重複，已略過）` : ''}${errors.length ? `，${errors.length} 列有問題沒匯入` : ''}。`, list: errors };
+      renderSettings(); break;
+    }
+    case 'subj': { const s = b.dataset.v, off = new Set(S.settings.off); off.has(s) ? off.delete(s) : off.add(s); S.settings.off = [...off]; saveSettings(); S.impText = $('#imp-text').value; renderSettings(); break; }
+    case 'bank-sample': S.bank = SAMPLE_BANK.map(q => Object.assign({}, q)); saveBank(); S.impMsg = { ok: true, text: '已還原內建範例題。' }; S.impText = $('#imp-text').value; renderSettings(); break;
+    case 'bank-clear':
+      S.impText = $('#imp-text').value;
+      if (!S.confirmClear) { S.confirmClear = true; setTimeout(() => { if (S.confirmClear) { S.confirmClear = false; if (S.screen === 'settings') renderSettings(); } }, 3500); }
+      else { S.confirmClear = false; S.bank = []; saveBank(); S.impMsg = { ok: true, text: '題庫已清空。沒有題目時遊戲會直接發動效果，請先匯入題目。' }; }
+      renderSettings(); break;
+    case 'del-q': S.bank = S.bank.filter(q => q.id !== b.dataset.id); saveBank(); S.impText = $('#imp-text').value; renderSettings(); break;
+    case 'diff': S.settings.diff = b.dataset.v; saveSettings(); S.impText = $('#imp-text').value; renderSettings(); break;
+    case 'copy-bank': copyText(bankToCSV(), 'bank'); break;
+    case 'copy-sample': copyText(CSV_SAMPLE, 'sample'); break;
+    case 'card': {
+      if (S.busy || !B || B.phase !== 'player') break;
+      const uid = +b.dataset.uid, card = B.hand.find(c => c.uid === uid); if (!card) break;
+      const can = canPlay(card);
+      if (!can.ok) { toast(can.why); break; }
+      if (S.sel === uid) {
+        if (needsTarget(card) && living().length > 1) { S.targeting = uid; S.sel = null; renderBattle(false); }
+        else tryPlay(uid, (living()[0] || {}).i);
+      } else { S.sel = uid; S.targeting = null; renderBattle(false); }
+      break;
+    }
+    case 'foe': if (S.targeting) { const u = S.targeting; tryPlay(u, +b.dataset.i); } break;
+    case 'cancel-target': S.targeting = null; renderBattle(false); break;
+    case 'end': doEndTurn(); break;
+    case 'ans': answerQuiz(+b.dataset.i); break;
+    case 'quiz-next': closeQuiz(); break;
+    case 'pick': { const c = S.choose; if (!c) break; const u = +b.dataset.uid; if (c.picked.has(u)) c.picked.delete(u); else { if (c.need === 1) c.picked.clear(); if (c.picked.size < c.need) c.picked.add(u); } c.draw(); break; }
+    case 'choose-ok': if (S.choose && S.choose.picked.size === S.choose.need) S.choose.done(); break;
+    case 'pile': showPile(b.dataset.v); break;
+    case 'deck': showPile('deck'); break;
+    case 'close-sheet': $('#m-sheet').hidden = true; $('#m-sheet').innerHTML = ''; break;
+    case 'quit': if (!S.quitAsk) { S.quitAsk = true; renderBattle(false); setTimeout(() => { if (S.quitAsk) { S.quitAsk = false; renderBattle(false); } }, 3000); } else { S.quitAsk = false; B = null; go('title'); } break;
+    case 'take': G.deck.push(b.dataset.id); nextFight(); break;
+    case 'skip': nextFight(); break;
+    case 'again': go('class'); break;
+  }
+});
+/* 自動判斷檔案編碼：UTF-8（含 BOM）、UTF-16、否則當成 Big5（Excel 在繁體 Windows 另存的 CSV） */
+function decodeBytes(u8, force) {
+  if (force && force !== 'auto') { try { return { text: new TextDecoder(force).decode(u8), enc: force === 'big5' ? 'Big5（手動）' : force === 'gbk' ? 'GBK（手動）' : 'UTF-8（手動）' }; } catch (e) {} }
+  if (u8[0] === 0xFF && u8[1] === 0xFE) return { text: new TextDecoder('utf-16le').decode(u8), enc: 'UTF-16' };
+  if (u8[0] === 0xFE && u8[1] === 0xFF) return { text: new TextDecoder('utf-16be').decode(u8), enc: 'UTF-16' };
+  try { return { text: new TextDecoder('utf-8', { fatal: true }).decode(u8), enc: 'UTF-8' }; } catch (e) {}
+  for (const enc of ['big5', 'gbk']) {
+    try { return { text: new TextDecoder(enc).decode(u8), enc: enc === 'big5' ? 'Big5' : 'GBK' }; } catch (e) {}
+  }
+  return { text: new TextDecoder('utf-8').decode(u8), enc: 'UTF-8（可能有亂碼）' };
+}
+document.addEventListener('change', ev => {
+  const t = ev.target;
+  if (t.id === 'opt-streak') { S.settings.streak = t.checked; saveSettings(); }
+  else if (t.id === 'opt-sound') { S.settings.sound = t.checked; saveSettings(); }
+  else if (t.id === 'imp-enc') {
+    S.enc = t.value;
+    if (S.bytes) { const r = decodeBytes(S.bytes, S.enc); S.impText = r.text; S.impMsg = { ok: true, text: `已用「${r.enc}」重新讀入「${S.fname}」，看看還有沒有亂碼。` }; }
+    renderSettings();
+  }
+  else if (t.id === 'imp-file' && t.files && t.files[0]) {
+    const f = t.files[0], fr = new FileReader();
+    fr.onload = () => {
+      S.bytes = new Uint8Array(fr.result); S.fname = f.name;
+      const r = decodeBytes(S.bytes, S.enc);
+      S.impText = r.text; S.impMsg = { ok: true, text: `已讀入「${f.name}」（編碼：${r.enc}），確認內容後按「匯入」。` }; renderSettings();
+    };
+    fr.onerror = () => { S.impMsg = { err: true, text: '讀不到這個檔案' }; renderSettings(); };
+    fr.readAsArrayBuffer(f);
+  }
+});
+document.addEventListener('keydown', ev => {
+  if (S.quiz) {
+    const k = ev.key.toUpperCase(), z = S.quiz;
+    if (!z.answered) {
+      const idx = '1234567'.indexOf(k) >= 0 && k ? +k - 1 : 'ABCDEF'.indexOf(k);
+      if (k.length === 1 && idx >= 0 && idx < z.order.length) { ev.preventDefault(); answerQuiz(z.order[idx]); }
+    } else if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); closeQuiz(); }
+    return;
+  }
+  if (S.screen === 'name' && ev.key === 'Enter' && ev.target.id === 'inp-name') { ev.preventDefault(); const b = $('[data-act="name-ok"]'); if (b) b.click(); }
+  if (S.screen === 'battle' && ev.key === 'Escape') { S.sel = null; S.targeting = null; renderBattle(false); }
+  if (ev.key === 'Enter' && ev.target.dataset && ev.target.dataset.act === 'foe') ev.target.click();
+});
+async function copyText(text, tag) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch (e) {}
+  if (!ok) {
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e) {} ta.remove();
+  }
+  S.copied = ok ? tag : ''; S.impText = ($('#imp-text') || {}).value || S.impText;
+  if (!ok) { S.impMsg = { err: true, text: '這個環境不能自動複製，請自己選取文字複製。' }; }
+  renderSettings();
+  setTimeout(() => { S.copied = ''; if (S.screen === 'settings') renderSettings(); }, 1800);
+}
+
+
+/* ---------- 排行榜（線上 + 本機） ---------- */
+const LB = { db: null, user: null, uid: null, canWrite: null, admin: false, rows: [], loading: false, slow: false, err: null, unsub: null, t: 0, init: null };
+LB.init = (async () => {
+  try {
+    if (!window.claude || !window.claude.use) return;
+    const [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+    LB.db = db; LB.user = user;
+    if (user) { LB.uid = await user.id(); LB.canWrite = await user.can('data.write'); LB.admin = await user.canEdit(); }
+  } catch (e) { LB.db = null; }
+  if (S.screen === 'leaderboard') renderLB();
+})();
+/* 排序：通過關卡多的在前；50 關都通過的，再比答對率；其餘同關卡也用答對率分高低，最後比誰先達成 */
+function cmpScore(a, b) {
+  const fa = a.cleared >= RANK_FLOORS, fb = b.cleared >= RANK_FLOORS;
+  if (fa && fb) return (b.acc - a.acc) || (a.at - b.at);
+  return (b.cleared - a.cleared) || (b.acc - a.acc) || (a.at - b.at);
+}
+function cleanRow(id, d) {
+  if (!d || typeof d !== 'object') return null;
+  const cleared = Math.max(0, Math.min(RANK_FLOORS, Math.floor(Number(d.cleared)) || 0));
+  const acc = Math.max(0, Math.min(1, Number(d.acc) || 0));
+  return { id, name: String(d.name || '無名').slice(0, 12), cls: CLASSES[d.cls] ? d.cls : 'warrior', cleared, acc, asked: Number(d.asked) || 0, at: Number(d.at) || 0 };
+}
+const localScores = () => (store.get('kt_local_scores', []) || []).map((d, i) => cleanRow('L' + i, d)).filter(Boolean).sort(cmpScore);
+function saveLocalScore(rec) {
+  const all = (store.get('kt_local_scores', []) || []).concat([rec]).map((d, i) => cleanRow('L' + i, d)).filter(Boolean).sort(cmpScore).slice(0, 30);
+  store.set('kt_local_scores', all.map(({ id, ...r }) => r));
+}
+function unsubLB() { if (LB.unsub) { try { LB.unsub(); } catch (e) {} LB.unsub = null; } clearTimeout(LB.t); LB.loading = false; }
+function subscribeLB() {
+  unsubLB();
+  if (!LB.db) return;
+  LB.loading = true; LB.slow = false; LB.err = null;
+  LB.t = setTimeout(() => { if (LB.loading) { LB.slow = true; if (S.screen === 'leaderboard') renderLB(); } }, 10000);
+  try {
+    LB.unsub = LB.db.collection('scores').limit(1000).onSnapshot(snap => {
+      LB.loading = false; LB.slow = false; clearTimeout(LB.t);
+      LB.rows = snap.docs.map(d => cleanRow(d.id, d.data())).filter(Boolean).sort(cmpScore);
+      if (S.screen === 'leaderboard') renderLB();
+    }, e => { LB.loading = false; LB.err = (e && e.code) || 'error'; clearTimeout(LB.t); if (S.screen === 'leaderboard') renderLB(); });
+  } catch (e) { LB.loading = false; LB.err = 'error'; }
+}
+/* 排行榜模式結束：存本機，並嘗試上傳（只有比自己原本的最佳成績好才會覆蓋） */
+async function submitRank() {
+  const st = G.stats, cleared = S.win ? G.floors.length : G.floor;
+  const rec = { name: G.name, cls: G.cls, cleared, correct: st.correct, asked: st.asked, acc: st.asked ? Math.round(st.correct / st.asked * 10000) / 10000 : 0, at: Date.now() };
+  saveLocalScore(rec);
+  S.sub = { state: 'sending', rec };
+  const done = r => { S.sub = Object.assign({ rec }, r); if (S.screen === 'end') renderEnd(); };
+  await LB.init;
+  if (!LB.db || !LB.uid) return done({ state: 'nocloud' });
+  if (LB.canWrite === false) return done({ state: 'noperm' });
+  try {
+    const ref = LB.db.doc('scores/' + LB.uid);
+    const snap = await ref.get();
+    const old = snap.exists ? cleanRow(LB.uid, snap.data()) : null;
+    let improved = true;
+    if (old && cmpScore(rec, old) >= 0) improved = false;
+    if (improved) await ref.set(rec);
+    const all = await LB.db.collection('scores').limit(1000).get();
+    const rows = all.docs.map(d => cleanRow(d.id, d.data())).filter(Boolean).sort(cmpScore);
+    const idx = rows.findIndex(r => r.id === LB.uid);
+    return done({ state: 'done', improved, best: old, rank: idx >= 0 ? idx + 1 : null, total: rows.length });
+  } catch (e) {
+    return done({ state: 'error', code: (e && e.code) || 'error' });
+  }
+}
+const rowHTML = (r, i, me, admin) => `<tr class="${me ? 'me' : ''}"><td class="rk">${i + 1}</td><td><b>${esc(r.name)}</b> <span class="cl" style="color:${CLS_COLOR[r.cls]}">${CLASSES[r.cls].name}</span></td><td>${r.cleared >= RANK_FLOORS ? '<span class="full">50 關全破</span>' : `通過 ${r.cleared} 關`}</td><td>${Math.round(r.acc * 100)}%</td>${admin ? `<td><button class="link" style="color:var(--bad)" data-act="lb-del" data-id="${esc(r.id)}">${S.delAsk === r.id ? '確定刪除？' : '刪除'}</button></td>` : ''}</tr>`;
+function renderLB() {
+  if (S.screen !== 'leaderboard') return;
+  const sc = app.querySelector('.screen'), top = sc ? sc.scrollTop : 0;
+  const online = S.lbTab === 'online';
+  let body;
+  if (online) {
+    if (!LB.db) body = `<div class="msg err">線上排行榜需要用 claude.ai 帳號登入，並由老師把頁面分享給你。現在只能看「這台裝置」的紀錄。</div>`;
+    else if (LB.err) body = `<div class="msg err">讀不到排行榜（${esc(LB.err)}）。請稍後重新整理。</div>`;
+    else if (LB.loading && !LB.rows.length) body = `<p class="note">${LB.slow ? '連線比較久，還在等排行榜資料…' : '讀取中…'}</p>`;
+    else if (!LB.rows.length) body = `<p class="note">還沒有人上榜。打完一次排行榜模式，成績就會出現在這裡。</p>`;
+    else body = `<div class="tablewrap"><table class="lb"><thead><tr><th>名次</th><th>玩家</th><th>成績</th><th>答對率</th>${LB.admin ? '<th></th>' : ''}</tr></thead><tbody>${LB.rows.slice(0, 100).map((r, i) => rowHTML(r, i, r.id === LB.uid, LB.admin)).join('')}</tbody></table></div>${LB.slow ? '<p class="note">資料可能不是最新的。</p>' : ''}`;
+  } else {
+    const rows = localScores();
+    body = rows.length ? `<div class="tablewrap"><table class="lb"><thead><tr><th>名次</th><th>玩家</th><th>成績</th><th>答對率</th></tr></thead><tbody>${rows.map((r, i) => rowHTML(r, i, false, false)).join('')}</tbody></table></div><p class="note">這裡只有這台裝置上打過的紀錄，最多保留 30 筆。</p>` : `<p class="note">這台裝置還沒有排行榜模式的紀錄。</p>`;
+  }
+  app.innerHTML = `<div class="screen"><div class="topbar"><button class="btn small ghost" data-act="home">← 回首頁</button><h2>排行榜</h2><span class="spacer"></span><button class="btn small" data-act="start-rank">玩排行榜模式</button></div>
+    <div class="row" style="margin-bottom:10px"><div class="seg" role="group" aria-label="排行榜範圍"><button data-act="lb-tab" data-v="online" aria-pressed="${online}">全部玩家</button><button data-act="lb-tab" data-v="local" aria-pressed="${!online}">這台裝置</button></div></div>
+    <p class="note" style="margin-bottom:12px">排名方式：通過的關卡越多越前面。50 關全部通過的，再比答對率。每個人只留自己的最佳成績。</p>
+    ${body}</div>`;
+  const ns = app.querySelector('.screen'); if (ns) ns.scrollTop = top;
+}
+function openLB() { S.lbTab = LB.db ? 'online' : 'local'; S.delAsk = ''; go('leaderboard'); if (LB.db) subscribeLB(); else LB.init.then(() => { if (S.screen === 'leaderboard' && LB.db) { S.lbTab = 'online'; subscribeLB(); renderLB(); } }); }
+
+/* ---------- 開始 ---------- */
+loadBank();
+render();
+
+</script>
+
+</body></html>
